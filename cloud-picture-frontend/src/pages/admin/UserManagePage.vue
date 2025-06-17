@@ -1,6 +1,6 @@
 <template>
   <div id="userManagePage" >
-    <!-- 搜索框 -->
+    <!-- 搜索表单 -->
     <a-form layout="inline" :model="searchParams" @finish="doSearch" class="card" style="margin-bottom: 10px">
       <a-form-item label="账号">
         <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" allow-clear/>
@@ -123,7 +123,7 @@ const total = ref(0)
 // 搜索条件
 const searchParams = reactive<API.UserQueryRequest>({
   current: 1,
-  pageSize: 2,
+  pageSize: 10,
   sortField: 'createTime',
   sortOrder: 'ascend',
 })

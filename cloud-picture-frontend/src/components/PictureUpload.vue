@@ -1,73 +1,90 @@
 <template>
-  <a-upload
-    v-model:file-list="fileList"
-    name="avatar"
-    list-type="picture-card"
-    class="avatar-uploader"
-    :show-upload-list="false"
-    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-    :before-upload="beforeUpload"
-    @change="handleChange"
-  >
-    <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
-    <div v-else>
-      <loading-outlined v-if="loading"></loading-outlined>
-      <plus-outlined v-else></plus-outlined>
-      <div class="ant-upload-text">Upload</div>
-    </div>
-  </a-upload>
+  <div class="picture_upload">
+    <a-upload
+      list-type="picture-card"
+      :show-upload-list="false"
+      :custom-request="handleUpload"
+      :before-upload="beforeUpload"
+    >
+      <img v-if="picture?.url" :src="picture?.url" alt="avatar" />
+      <div v-else>
+        <loading-outlined v-if="loading"></loading-outlined>
+        <plus-outlined v-else></plus-outlined>
+        <div class="ant-upload-text">点击或拖拽上传图片</div>
+      </div>
+    </a-upload>
+  </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
-import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
+import { ref } from 'vue'
+import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import type { UploadChangeParam, UploadProps } from 'ant-design-vue'
+import { uploadPictureUsingPost } from '@/api/pictureController.ts'
 
-function getBase64(img: Blob, callback: (base64Url: string) => void) {
-  const reader = new FileReader();
-  reader.addEventListener('load', () => callback(reader.result as string));
-  reader.readAsDataURL(img);
+interface Props {
+  picture?: API.PictureVO;
+  onSuccess?: (newPicture: API.PictureVO) => void;
 }
 
-const fileList = ref([]);
-const loading = ref<boolean>(false);
-const imageUrl = ref<string>('');
+const props = defineProps<Props>()
 
-const handleChange = (info: UploadChangeParam) => {
-  if (info.file.status === 'uploading') {
-    loading.value = true;
-    return;
+/**
+ * @description: 上传图片
+ * @param file
+ */
+const handleUpload = async (file: API.PictureVO) => {
+  loading.value = true
+  try {
+    const params = props.picture ? { id: props.picture.id } : {}
+    const res = await uploadPictureUsingPost(params, file)
+    if (res.data.code === 0 && res.data.data) {
+      message.success('图片上传成功')
+      // 将图片信息传递给父组件
+      props.onSuccess?.(res.data.data)
+    } else {
+      message.error('图片上传失败' + res.data.message)
+    }
+  } catch (error) {
+    console.log('图片上传失败', error)
+    message.error('图片上传失败' + error.message)
   }
-  if (info.file.status === 'done') {
-    // Get this url from response in real world.
-    getBase64(info.file.originFileObj, (base64Url: string) => {
-      imageUrl.value = base64Url;
-      loading.value = false;
-    });
-  }
-  if (info.file.status === 'error') {
-    loading.value = false;
-    message.error('upload error');
-  }
-};
+  loading.value = false
+}
 
+const loading = ref<boolean>(false)
+const imageUrl = ref<string>('')
+
+/**
+ * @description: 上传前的钩子，参数为上传的文件，若返回 false 则停止上传。
+ * @param file
+ */
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  // 校验图片格式
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
   if (!isJpgOrPng) {
-    message.error('You can only upload JPG file!');
+    message.error('不支持上传该格式的图片，推荐上传 jpg/png 格式的图片')
   }
-  const isLt2M = file.size / 1024 / 1024 < 2;
+  const isLt2M = file.size / 1024 / 1024 < 2
   if (!isLt2M) {
-    message.error('Image must smaller than 2MB!');
+    message.error('不能上传大于 2MB 的图片')
   }
-  return isJpgOrPng && isLt2M;
-};
+  return isJpgOrPng && isLt2M
+}
 </script>
 <style scoped>
-.avatar-uploader > .ant-upload {
-  width: 128px;
-  height: 128px;
+.picture_upload :deep(.ant-upload) {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 152px !important;
+  min-width: 152px !important;
 }
+
+.picture_upload img {
+  max-width: 100%;
+  max-height: 480px;
+}
+
 .ant-upload-select-picture-card i {
   font-size: 32px;
   color: #999;

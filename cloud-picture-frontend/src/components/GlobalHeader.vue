@@ -81,6 +81,11 @@ const originItems=[
     title: '用户管理'
   },
   {
+    key: '/admin/pictureManage',
+    label: '图片管理',
+    title: '图片管理'
+  },
+  {
     key: 'others',
     label: h('a', { href: 'https://github.com/SteveYz2002', target: '_blank' }, '关于'),
     title: '关于'
