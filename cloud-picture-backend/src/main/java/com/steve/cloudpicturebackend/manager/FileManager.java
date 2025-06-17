@@ -45,7 +45,7 @@ public class FileManager {
         // 图片上传地址
         String uuid = RandomUtil.randomString(16);
         String originalFilename = multipartFile.getOriginalFilename();
-        String uploadFileName = String.format("%s_%s_%s", DateUtil.formatDate(new Date()), uuid,
+        String uploadFileName = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid,
                 FileUtil.getSuffix(originalFilename));
         String uploadPath = String.format("%s/%s", uploadPathPrefix, uploadFileName);
         // 解析结果并返回
