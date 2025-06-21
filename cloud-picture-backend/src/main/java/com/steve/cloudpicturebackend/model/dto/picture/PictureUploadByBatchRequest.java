@@ -5,23 +5,26 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ *  批量导入图片请求
+ */
 @Data
-public class PictureUploadRequest implements Serializable {
+public class PictureUploadByBatchRequest implements Serializable {
 
     /**
-     * 图片id（用于修改）
+     * 搜索词
      */
-    private Long id;
+    private String searchText;
 
     /**
-     * 文件地址
+     * 抓取数量
      */
-    private String url;
+    private Integer count=10;
 
     /**
-     * 图片名称
+     * 名称前缀
      */
-    private String picName;
+    private String namePrefix;
 
     /**
      * 图片分类
@@ -32,6 +35,7 @@ public class PictureUploadRequest implements Serializable {
      * 图片标签
      */
     private List<String> tags;
+
 
     private static final long serialVersionUID = 1L;
 }
