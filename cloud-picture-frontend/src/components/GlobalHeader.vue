@@ -5,7 +5,10 @@
         <router-link to="/">
           <div class="title-bar">
             <img src="../assets/logo.png" alt="logo" class="logo" />
-            <div class="title">云图库</div>
+            <div class="title-container">
+              <div class="title">云笺阁</div>
+              <div class="subtitle">云图库平台</div>
+            </div>
           </div>
         </router-link>
       </a-col>
@@ -122,7 +125,7 @@ router.afterEach((to, from, next) => {
 })
 
 //路由跳转事件
-const doMenuClick = ({ key }: any) => {
+const doMenuClick = ({ key }: { key : string }) => {
   router.push({
     path: key
   })
@@ -149,10 +152,21 @@ const doLogout = async () => {
   align-items: center;
 }
 
+.title-container {
+  display: flex;
+  align-items: baseline;
+  margin-left: 16px;
+}
+
 .title {
   color: black;
   font-size: 18px;
-  margin-left: 16px;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: black;
+  margin-left: 5px;
 }
 
 .logo {

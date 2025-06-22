@@ -50,7 +50,6 @@
       :data-source="dataList"
       :pagination="pagination"
       @change="doTableChange"
-      :scroll="{x: 'max-content'}"
       class="card">
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'id'" >
@@ -148,7 +147,7 @@ import {
   listPictureByPageUsingPost, listPictureTagCategoryUsingGet,
   updatePictureUsingPost
 } from '@/api/pictureController.ts'
-import { message } from 'ant-design-vue'
+import { message, Tooltip } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { PIC_REVIEW_STATUS_ENUM, PIC_REVIEW_STATUS_MAP, PIC_REVIEW_STATUS_OPTIONS } from '@/constants/picture.ts'
 
@@ -164,7 +163,8 @@ const columns = [
   },
   {
     title: '名称',
-    dataIndex: 'name'
+    dataIndex: 'name',
+    ellipsis: true, // 开启省略显示
   },
   {
     title: '简介',
@@ -275,35 +275,11 @@ const handleDelete = async (id: number) => {
   }
 }
 
-const categoryOptions = ref<string[]>([])
 const tagOptions = ref<string[]>([])
-
-// 获取标签和分类选项
-const getTagCategoryOptions = async () => {
-  const res = await listPictureTagCategoryUsingGet()
-  if (res.data.code === 0 && res.data.data) {
-    // 转换成下拉选项组件接受的格式
-    tagOptions.value = (res.data.data.tagList ?? []).map((data: string) => {
-      return {
-        value: data,
-        label: data
-      }
-    })
-    categoryOptions.value = (res.data.data.categoryList ?? []).map((data: string) => {
-      return {
-        value: data,
-        label: data
-      }
-    })
-  } else {
-    message.error('获取标签分类列表失败，' + res.data.message)
-  }
-}
 
 // 页面加载时获取数据
 onMounted(() => {
   fetchData()
-  getTagCategoryOptions()
 })
 
 // 审核数据

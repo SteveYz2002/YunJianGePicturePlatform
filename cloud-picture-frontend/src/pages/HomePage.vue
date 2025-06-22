@@ -45,7 +45,7 @@
                   <img
                     style="height: 250px; object-fit: cover; width: 100%;"
                     :alt="picture.name"
-                    :src="picture.url"
+                    :src="picture.thumbnailUrl ?? picture.url"
                   />
                   <div class="image-details">
                     <h4 class="ellipsis-text">{{ picture.name }}</h4>
