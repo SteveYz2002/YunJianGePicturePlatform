@@ -22,9 +22,11 @@ import java.util.List;
  */
 @Service
 public class UrlPictureUpload extends PictureUploadTemplate {
+
     @Override
-    protected void validPicture(Object inputSource) {
+    protected String validPicture(Object inputSource) {
         String fileUrl = (String) inputSource;
+        String contentType = "";
         // 校验非空
         ThrowUtils.throwIf(StrUtil.isBlank(fileUrl), ErrorCode.PARAMS_ERROR, "文件地址为空");
         // 校验URL格式
@@ -42,15 +44,29 @@ public class UrlPictureUpload extends PictureUploadTemplate {
                     .execute();
             // 未正常返回，无需执行其他判断
             if (httpResponse.getStatus()!= HttpStatus.HTTP_OK) {
-                return;
+                return contentType;
             }
             // 文件存在，文件类型校验
-            String contentType = httpResponse.header("Content-Type");
+            contentType = httpResponse.header("Content-Type");
             // 不为空才校验
-            if (StrUtil.isBlank(contentType)) {
+            if (StrUtil.isNotBlank(contentType)) {
                 final List<String> ALLOW_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/jpg", "image/png", "image/webp");
                 ThrowUtils.throwIf(!ALLOW_CONTENT_TYPES.contains(contentType.toLowerCase()),
                         ErrorCode.PARAMS_ERROR, "文件类型错误");
+            }
+            switch (contentType) {
+                case "image/jpg":
+                    contentType = "jpg";
+                    break;
+                case "image/png":
+                    contentType = "png";
+                    break;
+                case "image/webp":
+                    contentType = "webp";
+                    break;
+                default:
+                    contentType = "jpg";
+                    break;
             }
             // 文件大小校验
             String contentLength = httpResponse.header("Content-Length");
@@ -61,14 +77,15 @@ public class UrlPictureUpload extends PictureUploadTemplate {
                 }catch (NumberFormatException e) {
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小格式错误");
                 }
-
             }
         }finally {
             // 记得释放资源
             if (httpResponse != null) {
-                httpResponse.close();}
-        }
+                httpResponse.close();
+            }
 
+        }
+        return contentType;
     }
 
     @Override
@@ -77,6 +94,8 @@ public class UrlPictureUpload extends PictureUploadTemplate {
         // 从 URL 中提取文件名
         return FileUtil.mainName(fileUrl);
     }
+
+
 
     @Override
     protected void processFile(Object inputSource, File file) throws Exception {

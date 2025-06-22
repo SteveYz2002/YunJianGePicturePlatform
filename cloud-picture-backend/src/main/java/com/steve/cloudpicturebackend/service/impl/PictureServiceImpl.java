@@ -1,14 +1,18 @@
 package com.steve.cloudpicturebackend.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.steve.cloudpicturebackend.exception.BusinessException;
 import com.steve.cloudpicturebackend.exception.ErrorCode;
 import com.steve.cloudpicturebackend.exception.ThrowUtils;
+import com.steve.cloudpicturebackend.manager.CosManager;
 import com.steve.cloudpicturebackend.manager.FileManager;
 import com.steve.cloudpicturebackend.manager.upload.FilePictureUpload;
 import com.steve.cloudpicturebackend.manager.upload.PictureUploadTemplate;
@@ -32,6 +36,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -64,6 +70,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Resource
     private UrlPictureUpload urlPictureUpload;
+    @Autowired
+    private CosManager cosManager;
 
     @Override
     public void validPicture(Picture picture) {
@@ -88,12 +96,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
         // 用于判断是新增还是更新图片
         Long pictureId = null;
+        Picture oldPicture = null;
         if (pictureUploadRequest != null) {
             pictureId = pictureUploadRequest.getId();
         }
         // 如果是更新图片，需要校验图片是否存在
         if (pictureId != null) {
-            Picture oldPicture = this.getById(pictureId);
+            oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
             // 校验权限
             ThrowUtils.throwIf(!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "无权限修改图片");
@@ -111,15 +120,18 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
         String picName = uploadPictureResult.getPicName();
+        String thumbnailUrl = uploadPictureResult.getThumbnailUrl();
         // 支持外层传递图片名称
         if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
             picName = pictureUploadRequest.getPicName();
         }
+        // 支持外层传递图片简介
         if(pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getCategory())){
             picture.setCategory(pictureUploadRequest.getCategory());
         }
+        // 支持外层传递图片标签
         if(pictureUploadRequest!= null && CollUtil.isNotEmpty(pictureUploadRequest.getTags())){
-            picture.setTags(pictureUploadRequest.getTags().toString());
+            picture.setTags(JSONUtil.toJsonStr(pictureUploadRequest.getTags()));
         }
         picture.setName(picName);
         picture.setPicSize(uploadPictureResult.getPicSize());
@@ -128,6 +140,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setPicScale(uploadPictureResult.getPicScale());
         picture.setPicFormat(uploadPictureResult.getPicFormat());
         picture.setUserId(loginUser.getId());
+        picture.setThumbnailUrl(thumbnailUrl);
         // 补充审核状态
         this.fillReviewParams(picture, loginUser);
         // 如果 pictureId 不为空，表示更新，否则是新增
@@ -137,6 +150,39 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             picture.setEditTime(new Date());
         }
         boolean result = this.saveOrUpdate(picture);
+        // 如果是更新，需要删除旧文件
+        if (pictureId != null) {
+            // 删除旧文件
+            String oldUrl = oldPicture.getUrl();
+            String oldThumbnailUrl = oldPicture.getThumbnailUrl();
+            // 删除文件
+            cosManager.deleteObject(oldUrl);
+            cosManager.deleteObject(oldThumbnailUrl);
+        }
+
+        // 删除原始格式图片，只保留webp格式
+        // 检查当前URL是否为webp格式
+        String url = picture.getUrl();
+        if (url != null && url.endsWith(".webp")) {
+            // 从URL中提取key
+            String pictureKey = extractKeyFromUrl(url);
+            // 获取webp文件的主文件名
+            String mainName = FileUtil.mainName(pictureKey);
+            // 获取原始文件的后缀
+            String originalFormat = uploadPictureResult.getPicFormat();
+            if (originalFormat != null && !originalFormat.equals("webp")) {
+                // 构造原始文件的key
+                String originalKey = mainName + "." + originalFormat;
+                try {
+                    // 删除原始文件
+                    cosManager.deleteObject(originalKey);
+                    log.info("删除原始格式图片: {}", originalKey);
+                } catch (Exception e) {
+                    log.error("删除原始格式图片失败: {}, 原因: {}", originalKey, e.getMessage());
+                }
+            }
+        }
+
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
         return PictureVO.objToVo(picture);
     }
@@ -319,19 +365,43 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取元素失败");
         }
         assert div != null;
-        Elements imgElementList = div.select("img.mimg");
-        // 遍历图片元素，依次上传
+        Elements imgElementList = div.select(".iusc");  // 修改选择器，获取包含完整数据的元素
         int uploadCount = 0;
+
         for (Element imgElement : imgElementList) {
-            String fileUrl = imgElement.attr("src");
+            //String fileUrl = imgElement.attr("src");
+
+            // 获取data-m属性中的JSON字符串
+            String dataM = imgElement.attr("m");
+            String fileUrl;
+            try {
+                // 解析JSON字符串
+                JSONObject jsonObject = JSONUtil.parseObj(dataM);
+                // 获取murl字段（原始图片URL）
+                fileUrl = jsonObject.getStr("murl");
+            } catch (Exception e) {
+                log.error("解析图片数据失败", e);
+                continue;
+            }
+
             if (StrUtil.isBlank(fileUrl)) {
-                log.info("当前链接为空，已跳过：{}", fileUrl);
+                log.info("当前链接为空，已跳过: {}", fileUrl);
                 continue;
             }
             // 处理图片地址，防止转义或者和对象存储冲突的问题
             int questionMarkIndex = fileUrl.indexOf("?");
             if (questionMarkIndex > -1) {
                 fileUrl = fileUrl.substring(0, questionMarkIndex);
+            }
+            // 检查是否已有后缀
+            String fileExtension = FileUtil.getSuffix(fileUrl);
+            if (StrUtil.isBlank(fileExtension)) {
+                // 从URL路径中尝试提取文件名
+                String pathSegment = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+                // 添加默认后缀（根据常见图片类型）
+                if (pathSegment.matches(".*[0-9]{10,}")) { // 处理无后缀的随机文件名
+                    fileUrl += ".jpg"; // 添加默认jpg后缀
+                }
             }
             PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
             pictureUploadRequest.setUrl(fileUrl);
@@ -352,6 +422,63 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
         }
         return uploadCount;
+    }
+
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 判断该图片是否被多条记录引用
+        String pictureUrl = oldPicture.getUrl();
+        long count = this.lambdaQuery()
+                .eq(Picture::getUrl, pictureUrl)
+                .count();
+        // 不止一条记录引用，不能删除
+        if (count > 1) {
+            return;
+        }
+        // 从URL中提取key
+        String pictureKey = extractKeyFromUrl(pictureUrl);
+        // 删除原始图片
+        cosManager.deleteObject(pictureKey);
+
+        // 删除webp格式的图片
+        String mainName = FileUtil.mainName(pictureKey);
+        String webpKey = mainName + ".webp";
+        cosManager.deleteObject(webpKey);
+
+        // 删除缩略图
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            String thumbnailKey = extractKeyFromUrl(thumbnailUrl);
+            cosManager.deleteObject(thumbnailKey);
+        }
+
+        // 删除可能存在的原始图片的缩略图
+        String suffix = FileUtil.getSuffix(pictureKey);
+        if (StrUtil.isNotBlank(suffix)) {
+            String thumbnailKey = mainName + "_thumbnail." + suffix;
+            cosManager.deleteObject(thumbnailKey);
+        }
+
+        log.info("清理图片文件完成，原始key: {}, webp key: {}", pictureKey, webpKey);
+    }
+
+
+    /**
+     * 从完整的COS URL中提取对象key
+     * 例如：从 https://stevecp1-1364043722.cos.ap-beijing.myqcloud.com/public/1/test.jpg
+     * 提取出 public/1/test.jpg
+     *
+     * @param url 完整的COS URL
+     * @return 对象key
+     */
+    private String extractKeyFromUrl(String url) {
+        if (StrUtil.isBlank(url)) {
+            return "";
+        }
+        // 移除域名部分，获取key
+        String host = "https://stevecp1-1364043722.cos.ap-beijing.myqcloud.com/";
+        return url.replace(host, "");
     }
 
 }
