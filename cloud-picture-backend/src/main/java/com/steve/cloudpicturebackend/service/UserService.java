@@ -83,7 +83,7 @@ public interface UserService extends IService<User> {
     boolean userLogout(HttpServletRequest request);
 
     /**
-     * 获取查询条件
+     * 获取查询对象
      *
      * @param userQueryRequest
      * @return

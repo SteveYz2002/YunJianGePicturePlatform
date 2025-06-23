@@ -2,10 +2,7 @@ package com.steve.cloudpicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.steve.cloudpicturebackend.model.dto.picture.PictureQueryRequest;
-import com.steve.cloudpicturebackend.model.dto.picture.PictureReviewRequest;
-import com.steve.cloudpicturebackend.model.dto.picture.PictureUploadByBatchRequest;
-import com.steve.cloudpicturebackend.model.dto.picture.PictureUploadRequest;
+import com.steve.cloudpicturebackend.model.dto.picture.*;
 import com.steve.cloudpicturebackend.model.dto.user.UserQueryRequest;
 import com.steve.cloudpicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -26,17 +23,17 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 上传图片
-     * @param inputSource
-     * @param pictureUploadRequest
-     * @param loginUser
+     * @param inputSource 输入源
+     * @param pictureUploadRequest   上传请求
+     * @param loginUser     登录用户
      * @return
      */
     PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser);
 
     /**
      * 获取图片包装类（单条）
-     * @param picture
-     * @param request
+     * @param picture 图片
+     * @param request 请求
      * @return
      */
     PictureVO getPictureVO(Picture picture, HttpServletRequest request);
@@ -50,7 +47,7 @@ public interface PictureService extends IService<Picture> {
     Page<PictureVO> getPictureVOPage(Page<Picture> picturePage, HttpServletRequest request);
 
     /**
-     * 获取查询条件
+     * 获取查询对象
      *
      * @param pictureQueryRequest
      * @return
@@ -83,4 +80,25 @@ public interface PictureService extends IService<Picture> {
      * @param oldPicture
      */
     void clearPictureFile(Picture oldPicture);
+
+    /**
+     * 删除图片
+     * @param pictureId
+     * @param loginUser
+     */
+    void deletePicture(long pictureId, User loginUser);
+
+    /**
+     * 编辑图片
+     * @param pictureEditRequest
+     * @param loginUser
+     */
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+
+    /**
+     * 校验图片空间的权限
+     * @param loginUser
+     * @param picture
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
 }

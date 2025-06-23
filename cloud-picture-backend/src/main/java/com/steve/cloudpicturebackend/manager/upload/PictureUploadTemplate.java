@@ -82,9 +82,9 @@ public abstract class PictureUploadTemplate {
             log.error("图片上传到对象存储失败", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
-            // 删除原图，只保留webp图
-            cosManager.deleteObject(uploadPath);
             // 6. 清理临时文件
+            // check
+            cosManager.deleteObject(uploadPath);
             this.deleteTempFile(file);
         }
     }

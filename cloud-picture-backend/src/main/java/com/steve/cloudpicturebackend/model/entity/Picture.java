@@ -18,7 +18,7 @@ public class Picture implements Serializable {
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -80,6 +80,11 @@ public class Picture implements Serializable {
      * 创建用户 id
      */
     private Long userId;
+
+    /**
+     * 空间 id
+     */
+    private Long spaceId;
 
     /**
      * 创建时间
