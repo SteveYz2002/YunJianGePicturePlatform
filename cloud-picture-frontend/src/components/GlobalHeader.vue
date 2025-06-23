@@ -38,11 +38,19 @@
 
               <template #overlay>
                 <a-menu>
+                  <a-menu-item>
+                    <router-link to="/my_space">
+                      <UserOutlined />
+                      我的空间
+                    </router-link>
+                  </a-menu-item>
                   <a-menu-item @click="doLogout">
                     <LogoutOutlined />
                     退出登录
                   </a-menu-item>
                 </a-menu>
+                <!-- todo 修改密码-->
+                <!-- todo 个人信息-->
               </template>
             </a-dropdown>
 
@@ -57,7 +65,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
@@ -66,7 +74,7 @@ import { userLogoutUsingPost } from '@/api/userController.ts'
 const loginUserStore = useLoginUserStore()
 
 // 未经滤的菜单项
-const originItems=[
+const originItems = [
   {
     key: '/',
     icon: () => h(HomeOutlined),
@@ -76,7 +84,7 @@ const originItems=[
   {
     key: '/add_picture',
     label: '创建图片',
-    title: '创建图片',
+    title: '创建图片'
   },
   {
     key: '/admin/userManage',
@@ -89,6 +97,11 @@ const originItems=[
     title: '图片管理'
   },
   {
+    key: '/admin/spaceManage',
+    label: '空间管理',
+    title: '空间管理'
+  },
+  {
     key: 'others',
     label: h('a', { href: 'https://github.com/SteveYz2002', target: '_blank' }, '关于'),
     title: '关于'
@@ -99,7 +112,7 @@ const originItems=[
 const filteredMenus = (menus = [] as MenuProps['items']) => {
   return menus?.filter((menu) => {
     // 管理员才能访问admin开头的菜单
-    if (menu?.key?.startsWith('/admin') ) {
+    if (menu?.key?.startsWith('/admin')) {
       const loginUser = loginUserStore.loginUser
       if (!loginUser || loginUser.userRole !== 'admin') {
         return false
@@ -110,7 +123,7 @@ const filteredMenus = (menus = [] as MenuProps['items']) => {
 }
 
 // 展示的菜单项
-const items= computed(() => {
+const items = computed(() => {
   return filteredMenus(originItems)
 })
 
@@ -125,7 +138,7 @@ router.afterEach((to, from, next) => {
 })
 
 //路由跳转事件
-const doMenuClick = ({ key }: { key : string }) => {
+const doMenuClick = ({ key }: { key: string }) => {
   router.push({
     path: key
   })
@@ -134,13 +147,13 @@ const doMenuClick = ({ key }: { key : string }) => {
 //退出登录
 const doLogout = async () => {
   const res = await userLogoutUsingPost()
-  if(res.data.code === 0){
+  if (res.data.code === 0) {
     loginUserStore.setLoginUser({
-      userName: '未登录',
+      userName: '未登录'
     })
     message.success('退出登录成功')
-    await router.push({path: '/user/login', replace: true})
-  }else{
+    await router.push({ path: '/user/login', replace: true })
+  } else {
     message.error('退出登录失败,' + res.data.message)
   }
 }

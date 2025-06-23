@@ -58,7 +58,7 @@
           </div>
         </template>
         <template v-if="column.dataIndex === 'url'">
-          <a-image :src="record.url" :width="120" />
+          <a-image :src="record.url" :width="100"/>
         </template>
         <template v-if="column.dataIndex === 'category'">
           <div>{{ record.category }}</div>
@@ -190,6 +190,11 @@ const columns = [
     width: 80
   },
   {
+    title: '空间id',
+    dataIndex: 'spaceId',
+    width: 80
+  },
+  {
     title: '审核信息',
     dataIndex: 'reviewMessage'
   },
@@ -245,7 +250,8 @@ const doTableChange = (page: any) => {
 // 获取数据
 const fetchData = async () => {
   const res = await listPictureByPageUsingPost({
-    ...searchParams
+    ...searchParams,
+    nullSpaceId:true
   })
   if (res.data.code === 0 && res.data.data) {
     dataList.value = res.data.data.records ?? []
