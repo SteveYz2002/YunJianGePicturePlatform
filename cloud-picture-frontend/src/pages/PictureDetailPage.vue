@@ -50,8 +50,26 @@
             <a-descriptions-item label="大小">
               {{ formatSize(picture.picSize) }}
             </a-descriptions-item>
+            <a-descriptions-item label="主色调">
+              <a-space>
+                {{ picture.picColor ?? '-' }}
+                <div
+                  v-if="picture.picColor"
+                  :style="{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: toHexColor(picture.picColor)
+              }" />
+              </a-space>
+            </a-descriptions-item>
           </a-descriptions>
-          <a-space >
+          <a-space>
+            <a-button type="primary" ghost @click="doShare">
+              编辑
+              <template #icon>
+                <ShareAltOutlined />
+              </template>
+            </a-button>
             <a-button v-if="canEditOrDelete" type="default" @click="doEdit">
               编辑
               <template #icon>
@@ -70,17 +88,16 @@
                 <DownloadOutlined />
               </template>
             </a-button>
-
           </a-space>
-
         </a-card>
       </a-col>
     </a-row>
+    <ShareModal ref="shareModalRef" :link="shareLink" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed} from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import {
   deletePictureUsingPost,
   getPictureVoByIdUsingGet
@@ -89,7 +106,9 @@ import { message } from 'ant-design-vue'
 import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { useRouter } from 'vue-router'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons-vue'
+import { toHexColor } from '@/utils'
+import ShareModal from '@/components/ShareModal.vue'
 
 interface Props {
   id: string | number
@@ -99,7 +118,7 @@ const loginUserStore = useLoginUserStore()
 
 // 是否具有编辑权限
 const canEditOrDelete = computed(() => {
-  const loginUser = loginUserStore.loginUser;
+  const loginUser = loginUserStore.loginUser
   // 未登录不可编辑
   if (!loginUser.id) {
     return false
@@ -125,7 +144,7 @@ const fetchPictureDetail = async () => {
     } else {
       message.error('获取图片详情失败，' + res.data.message)
     }
-  }catch (error : any) {
+  } catch (error: any) {
     message.error('获取图片详情失败，' + error.message)
   }
 }
@@ -138,8 +157,8 @@ const doEdit = () => {
     path: '/add_picture',
     query: {
       id: picture.value.id,
-      spaceId: picture.value.spaceId,
-    },
+      spaceId: picture.value.spaceId
+    }
   })
 }
 // 删除
@@ -167,6 +186,21 @@ const doDownload = () => {
   console.log(picture.value.url)
   downloadImage(picture.value.url)
 }
+
+//-----------------------分享操作---------------
+// 分享弹窗引用
+const shareModalRef = ref()
+// 分享链接
+const shareLink = ref<string>()
+
+// 分享
+const doShare = () => {
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
+  if (shareModalRef.value) {
+    shareModalRef.value.openModal()
+  }
+}
+
 </script>
 
 <style scoped>
