@@ -71,7 +71,7 @@ public class CosManager {
         compressRule.setFileId(webpKey);
         rules.add(compressRule);
         // 2 缩略图处理， 仅对size>20kb的图片生成缩略图
-        if (file.length() > 2 * 1024 * 1024) {
+        if (file.length() > 2 * 1024) {
             PicOperations.Rule thumbnailRule = new PicOperations.Rule();
             thumbnailRule.setBucket(cosClientConfig.getBucket());
             String thumbnailKey = FileUtil.mainName(key) + "_thumbnail." + FileUtil.getSuffix(key);

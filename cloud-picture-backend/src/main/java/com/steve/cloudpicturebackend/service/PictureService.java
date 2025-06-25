@@ -11,12 +11,9 @@ import com.steve.cloudpicturebackend.model.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
-/**
- * @author Administrator
- * @description 针对表【picture(图片)】的数据库操作Service
- * @createDate 2025-06-13 16:50:12
- */
+
 public interface PictureService extends IService<Picture> {
 
     void validPicture(Picture picture);
@@ -40,8 +37,8 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 获取图片包装类（分页）
-     * @param picturePage
-     * @param request
+     * @param picturePage 图片页
+     * @param request     请求
      * @return
      */
     Page<PictureVO> getPictureVOPage(Page<Picture> picturePage, HttpServletRequest request);
@@ -49,56 +46,74 @@ public interface PictureService extends IService<Picture> {
     /**
      * 获取查询对象
      *
-     * @param pictureQueryRequest
+     * @param pictureQueryRequest 图片查询请求
      * @return
      */
     QueryWrapper<Picture> getQueryWrapper(PictureQueryRequest pictureQueryRequest);
 
     /**
-     * @param pictureReviewRequest
-     * @param loginUser
+     * @param pictureReviewRequest 图片审核请求
+     * @param loginUser            登录用户
      */
     void doPictureReview(PictureReviewRequest pictureReviewRequest, User loginUser);
 
     /**
      * 填充审核参数
-     * @param picture
-     * @param loginUser
+     * @param picture   图片
+     * @param loginUser  登录用户
      */
     void fillReviewParams(Picture picture, User loginUser);
 
     /**
      * 批量上传图片
-     * @param pictureUploadByBatchRequest
-     * @param loginUser
+     * @param pictureUploadByBatchRequest 图片批量上传请求
+     * @param loginUser   登录用户
      * @return 成功创建的图片数量
      */
     Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser);
 
     /**
      * 删除图片文件
-     * @param oldPicture
+     * @param oldPicture 旧图片
      */
     void clearPictureFile(Picture oldPicture);
 
     /**
      * 删除图片
-     * @param pictureId
-     * @param loginUser
+     * @param pictureId 图片id
+     * @param loginUser 登录用户
      */
     void deletePicture(long pictureId, User loginUser);
 
     /**
      * 编辑图片
-     * @param pictureEditRequest
-     * @param loginUser
+     * @param pictureEditRequest 图片编辑请求
+     * @param loginUser           登录用户
      */
     void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 
     /**
      * 校验图片空间的权限
-     * @param loginUser
-     * @param picture
+     * @param loginUser    登录用户
+     * @param picture      图片
      */
     void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 根据颜色搜索图片
+     *
+     * @param spaceId   空间id
+     * @param picColor  颜色
+     * @param loginUser 登录用户
+     * @return
+     */
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
+
+    /**
+     * 批量编辑图片
+     *
+     * @param pictureEditByBatchRequest 图片批量编辑请求
+     * @param loginUser                 登录用户
+     */
+    void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
 }
