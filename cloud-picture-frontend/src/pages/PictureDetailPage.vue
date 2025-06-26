@@ -63,9 +63,9 @@
               </a-space>
             </a-descriptions-item>
           </a-descriptions>
-          <a-space>
+          <a-space wrap>
             <a-button type="primary" ghost @click="doShare">
-              编辑
+              分享
               <template #icon>
                 <ShareAltOutlined />
               </template>

@@ -21,6 +21,14 @@ interface Props {
   link: string
 }
 
+/**
+ * 给组件指定初始值
+ */
+const props = withDefaults(defineProps<Props>(), {
+  title: '分享图片',
+  link:  'https://github.com/SteveYz2002'
+})
+
 // 是否可见
 const visible = ref(false)
 
@@ -34,13 +42,6 @@ const closeModal = () => {
   visible.value = false
 }
 
-/**
- * 给组件指定初始值
- */
-const props = withDefaults(defineProps<Props>(), {
-  title: '分享图片',
-  link:  'https://github.com/SteveYz2002'
-})
 
 // 暴露函数给父组件使用
 defineExpose({

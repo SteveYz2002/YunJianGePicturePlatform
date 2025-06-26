@@ -13,6 +13,9 @@ import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
 import '../src/assets/global.css'
 import '@/access.ts'
+import VueCropper from 'vue-cropper';
+import 'vue-cropper/dist/index.css'
+
 
 const app = createApp(App)
 
@@ -22,6 +25,7 @@ dayjs.locale(defaultLocale.locale);
 app.use(createPinia())
 app.use(Antd, )
 app.use(router)
+app.use(VueCropper)
 
 app.component('ConfigProvider', ConfigProvider)
 app.mount('#app')
