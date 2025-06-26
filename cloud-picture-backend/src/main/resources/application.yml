@@ -53,3 +53,4 @@ knife4j:
         api-rule-resources:
           - com.steve.cloudpicturebackend.controller
 
+

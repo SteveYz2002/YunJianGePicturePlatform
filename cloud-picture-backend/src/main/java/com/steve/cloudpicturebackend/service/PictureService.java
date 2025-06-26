@@ -2,13 +2,12 @@ package com.steve.cloudpicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
 import com.steve.cloudpicturebackend.model.dto.picture.*;
-import com.steve.cloudpicturebackend.model.dto.user.UserQueryRequest;
 import com.steve.cloudpicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.steve.cloudpicturebackend.model.entity.User;
 import com.steve.cloudpicturebackend.model.vo.PictureVO;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -116,4 +115,12 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser                 登录用户
      */
     void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser);
+
+    /**
+     * 创建扩图任务
+     *
+     * @param createPictureOutPaintingTaskRequest 扩图任务请求
+     * @param loginUser                           登录用户
+     */
+    CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
 }
