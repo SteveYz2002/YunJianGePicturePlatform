@@ -73,8 +73,8 @@ const createTask = async () => {
   })
   if (res.data.code === 0 && res.data.data) {
     message.success('创建任务成功，请耐心等待，不要退出界面')
-    console.log(res.data.data.output.taskId)
-    taskId.value = res.data.data.output.taskId
+    console.log(res.data.data.output?.taskId)
+    taskId.value = res.data.data.output?.taskId
     // 开启轮询
     startPolling()
   } else {
@@ -98,12 +98,12 @@ const startPolling = () => {
       })
       if (res.data.code === 0 && res.data.data) {
         const taskResult = res.data.data.output
-        if (taskResult.taskStatus === 'SUCCEEDED') {
+        if (taskResult?.taskStatus === 'SUCCEEDED') {
           message.success('扩图任务执行成功')
-          resultImageUrl.value = taskResult.outputImageUrl
+          resultImageUrl.value = taskResult?.outputImageUrl
           // 清理轮询
           clearPolling()
-        } else if (taskResult.taskStatus === 'FAILED') {
+        } else if (taskResult?.taskStatus === 'FAILED') {
           message.error('扩图任务执行失败')
           // 清理轮询
           clearPolling()
