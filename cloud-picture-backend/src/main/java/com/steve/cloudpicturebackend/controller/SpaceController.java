@@ -45,8 +45,9 @@ public class SpaceController {
 
     /**
      * 创建空间
-     * @param spaceAddRequest
-     * @param request
+     *
+     * @param spaceAddRequest 请求参数
+     * @param request         http请求
      * @return
      */
     @PostMapping("/add")
@@ -60,6 +61,9 @@ public class SpaceController {
 
     /**
      * 删除空间
+     *
+     * @param deleteRequest 请求参数
+     * @param request       http请求
      */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteSpace(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
@@ -72,9 +76,7 @@ public class SpaceController {
         Space oldSpace = spaceService.getById(id);
         ThrowUtils.throwIf(oldSpace == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
+        spaceService.checkSpaceAuth(loginUser, oldSpace);
         // 操作数据库
         boolean result = spaceService.removeById(id);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -83,13 +85,14 @@ public class SpaceController {
 
     /**
      * 更新空间（仅管理员可用）
-     * @param spaceUpdateRequest
-     * @param request
+     *
+     * @param spaceUpdateRequest 空间更新请求
+     * @param request            http请求
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateSpace(@RequestBody SpaceUpdateRequest spaceUpdateRequest,
-                                               HttpServletRequest request) {
+                                             HttpServletRequest request) {
         if (spaceUpdateRequest == null || spaceUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -112,6 +115,9 @@ public class SpaceController {
 
     /**
      * 根据 id 获取空间（仅管理员可用）
+     *
+     * @param id      id
+     * @param request http请求
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -126,6 +132,9 @@ public class SpaceController {
 
     /**
      * 根据 id 获取空间（封装类）
+     *
+     * @param request http请求
+     * @Param id id
      */
     @GetMapping("/get/vo")
     public BaseResponse<SpaceVO> getSpaceVOById(long id, HttpServletRequest request) {
@@ -139,6 +148,8 @@ public class SpaceController {
 
     /**
      * 分页获取空间列表（仅管理员可用）
+     *
+     * @param spaceQueryRequest 空间查询请求
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -153,10 +164,13 @@ public class SpaceController {
 
     /**
      * 分页获取空间列表（封装类）
+     *
+     * @param spaceQueryRequest 空间查询请求
+     * @param request           http请求
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<SpaceVO>> listSpaceVOByPage(@RequestBody SpaceQueryRequest spaceQueryRequest,
-                                                             HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         long current = spaceQueryRequest.getCurrent();
         long size = spaceQueryRequest.getPageSize();
         // 限制爬虫
@@ -170,6 +184,9 @@ public class SpaceController {
 
     /**
      * 编辑空间（给用户使用）
+     *
+     * @param spaceEditRequest 空间编辑请求
+     * @param request          http请求
      */
     @PostMapping("/edit")
     public BaseResponse<Boolean> editSpace(@RequestBody SpaceEditRequest spaceEditRequest, HttpServletRequest request) {
@@ -191,9 +208,7 @@ public class SpaceController {
         Space oldSpace = spaceService.getById(id);
         ThrowUtils.throwIf(oldSpace == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
-        if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
+        spaceService.checkSpaceAuth(loginUser, oldSpace);
         // 操作数据库
         boolean result = spaceService.updateById(space);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -202,16 +217,17 @@ public class SpaceController {
 
     /**
      * 获取空间等级列表，便于前端展示
+     *
      * @return
      */
     @GetMapping("/list/level")
     public BaseResponse<List<SpaceLevel>> listSpaceLevel() {
         List<SpaceLevel> spaceLevelList = Arrays.stream(SpaceLevelEnum.values())
                 .map(spaceLevelEnum -> new SpaceLevel(
-                            spaceLevelEnum.getValue(),
-                            spaceLevelEnum.getText(),
-                            spaceLevelEnum.getMaxCount(),
-                            spaceLevelEnum.getMaxSize()
+                        spaceLevelEnum.getValue(),
+                        spaceLevelEnum.getText(),
+                        spaceLevelEnum.getMaxCount(),
+                        spaceLevelEnum.getMaxSize()
                 )).collect(Collectors.toList());
         return ResultUtils.success(spaceLevelList);
     }
