@@ -4,8 +4,12 @@
       <h2>空间管理</h2>
       <a-space>
         <a-button type="primary" href="/add_space" target="_blank">+ 创建空间</a-button>
-        <a-button type="primary" style="background-color: #980404; border-color: #980404" href="/space_analyze?queryPublic=1" target="_blank">分析公共图库</a-button>
-        <a-button type="primary" style="background-color: #2a5704; border-color: #2a5704" href="/space_analyze?queryAll=1" target="_blank">分析全部空间</a-button>
+        <a-button type="primary" style="background-color: #980404; border-color: #980404"
+                  href="/space_analyze?queryPublic=1" target="_blank">分析公共图库
+        </a-button>
+        <a-button type="primary" style="background-color: #2a5704; border-color: #2a5704"
+                  href="/space_analyze?queryAll=1" target="_blank">分析全部空间
+        </a-button>
       </a-space>
     </a-flex>
     <div style="margin-bottom: 16px" />
@@ -27,6 +31,15 @@
           allow-clear
         />
       </a-form-item>
+      <a-form-item label="空间级别" name="spaceType">
+        <a-select
+          v-model:value="searchParams.spaceType"
+          :options="SPACE_TYPE_OPTIONS"
+          placeholder="请选择空间类别"
+          style="min-width: 180px"
+          allow-clear
+        />
+      </a-form-item>
       <a-form-item label="用户 id" name="userId">
         <a-input v-model:value="searchParams.userId" placeholder="请输入用户 id" allow-clear />
       </a-form-item>
@@ -44,6 +57,9 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'spaceLevel'">
           <div>{{ SPACE_LEVEL_MAP[record.spaceLevel] }}</div>
+        </template>
+        <template v-if="column.dataIndex === 'spaceType'">
+          <div>{{ SPACE_TYPE_MAP[record.spaceType] }}</div>
         </template>
         <template v-if="column.dataIndex === 'spaceUseInfo'">
           <div>大小：{{ formatSize(record.totalSize) }} / {{ formatSize(record.maxSize) }}</div>
@@ -88,7 +104,7 @@ import {
 } from '@/api/spaceController.ts'
 import { message, Tooltip } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import { SPACE_LEVEL_MAP, SPACE_LEVEL_OPTIONS } from '@/constants/space.ts'
+import { SPACE_LEVEL_MAP, SPACE_LEVEL_OPTIONS, SPACE_TYPE_MAP, SPACE_TYPE_OPTIONS } from '@/constants/space.ts'
 import { formatSize } from '@/utils'
 
 const columns = [
@@ -104,6 +120,10 @@ const columns = [
   {
     title: '空间级别',
     dataIndex: 'spaceLevel'
+  },
+  {
+    title: '空间类别',
+    dataIndex: 'spaceType'
   },
   {
     title: '使用情况',

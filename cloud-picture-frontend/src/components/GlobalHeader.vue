@@ -1,5 +1,5 @@
 <template>
-  <div id="globalHeader">
+  <div id="globalHeader" >
     <a-row :wrap="false">
       <a-col flex="200px">
         <router-link to="/">
@@ -48,8 +48,15 @@
                     <LogoutOutlined />
                     退出登录
                   </a-menu-item>
+                  <a-menu-item>
+                    <EditFilled />
+                    <a href="/editPassword"> 修改密码</a>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <InfoCircleOutlined />
+                    <a href="/personal_info"> 个人信息</a>
+                  </a-menu-item>
                 </a-menu>
-                <!-- todo 修改密码-->
                 <!-- todo 个人信息-->
               </template>
             </a-dropdown>
@@ -65,7 +72,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined, UserOutlined, EditFilled, InfoCircleOutlined } from '@ant-design/icons-vue'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'

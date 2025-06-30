@@ -30,6 +30,8 @@
 </template>
 
 
+
+
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { userLoginUsingPost } from '@/api/userController.ts'
@@ -38,7 +40,22 @@ import { message } from 'ant-design-vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
 
-const redirect = useRoute().query.redirect?.toString() || '/'
+// 获取redirect参数并处理成正确的路径格式
+const redirectParam = useRoute().query.redirect?.toString() || '/'
+let redirect = '/'
+
+try {
+  // 如果是完整URL，则提取路径部分
+  if (redirectParam.startsWith('http')) {
+    const url = new URL(redirectParam)
+    redirect = url.pathname
+  } else {
+    redirect = redirectParam
+  }
+} catch (error) {
+  console.error('Invalid redirect URL:', error)
+  redirect = '/'
+}
 
 // 用于接受表单输入的值
 const formState = reactive<API.UserLoginRequest>({
@@ -53,6 +70,7 @@ const loginUserStore = useLoginUserStore()
  * @param values
  */
 const handleSubmit = async (values: any) => {
+  console.log(redirect)
   const res = await userLoginUsingPost(values)
   // 登录成功，把登录态保存到全局状态中
   if(res.data.code === 0 && res.data.data){

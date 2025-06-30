@@ -13,6 +13,9 @@ import MySpacePage from '@/pages/MySpacePage.vue'
 import SpaceDetailPage from '@/pages/SpaceDetailPage.vue'
 import SearchPicturePage from '@/pages/SearchPicturePage.vue'
 import SpaceAnalyzePage from '@/pages/SpaceAnalyzePage.vue'
+import EditPasswordPage from '@/pages/user/EditPasswordPage.vue'
+import PersonalInfoPage from '@/pages/user/PersonalInfoPage.vue'
+import SpaceUserManagePage from '@/pages/admin/SpaceUserManagePage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,78 +23,95 @@ const router = createRouter({
     {
       path: '/',
       name: '主页',
-      component: HomePage,
+      component: HomePage
     },
     {
       path: '/user/login',
       name: '用户登录',
       component: UserLoginPage,
+      props: true
     },
     {
       path: '/user/register',
       name: '用户注册',
-      component: UserRegisterPage,
+      component: UserRegisterPage
     },
     {
       path: '/admin/userManage',
       name: '用户管理',
-      component: UserManagePage,
+      component: UserManagePage
     },
     {
       path: '/admin/pictureManage',
       name: '图片管理',
-      component: PictureManagePage,
+      component: PictureManagePage
     },
     {
       path: '/admin/spaceManage',
       name: '空间管理',
-      component: SpaceManagePage,
+      component: SpaceManagePage
+    },
+    {
+      path: '/spaceUserManage/:id',
+      name: '空间成员管理',
+      component: SpaceUserManagePage,
+      props: true
     },
     {
       path: '/add_picture',
       name: '创建图片',
-      component: AddPicturePage,
+      component: AddPicturePage
     },
     {
       path: '/add_space',
       name: '创建空间',
-      component: AddSpacePage,
+      component: AddSpacePage
     },
     {
       path: '/add_picture/batch',
       name: '批量创建图片',
-      component: AddPictureBatchPage,
+      component: AddPictureBatchPage
     },
     {
       path: '/picture/:id',
       name: '图片详情',
       component: PictureDetailPage,
-      props: true,
+      props: true
     },
     {
       path: '/space/:id',
       name: '空间详情',
       component: SpaceDetailPage,
-      props: true,
+      props: true
     },
     {
       path: '/space_analyze',
       name: '空间分析',
       component: SpaceAnalyzePage,
-      props: true,
+      props: true
     },
     {
       path: '/search_picture',
       name: '以图搜图',
       component: SearchPicturePage,
-      props: true,
+      props: true
     },
     {
       path: '/my_space',
       name: '我的空间',
-      component: MySpacePage,
+      component: MySpacePage
     },
-  ],
+    {
+      path: '/editPassword',
+      name: '修改密码',
+      component: EditPasswordPage
+    },
+    {
+      path: '/personal_info',
+      name: '个人信息',
+      component: PersonalInfoPage
+    }
+  ]
 })
 
 export default router
