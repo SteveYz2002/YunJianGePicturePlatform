@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -142,6 +143,25 @@ public class UserController {
     }
 
     /**
+     * 更新用户信息（仅修改自己的信息）
+     */
+    @PostMapping("/update/self")
+    public BaseResponse<Boolean> updateUserSelf(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(userUpdateRequest == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        if(!Objects.equals(loginUser.getId(), userUpdateRequest.getId())){
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateRequest, user);
+        user.setId(loginUser.getId());
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
      * 分页获取用户封装列表（仅管理员）
      *
      * @param userQueryRequest 查询请求参数
@@ -157,6 +177,24 @@ public class UserController {
         List<UserVO> userVOList = userService.getUserVOList(userPage.getRecords());
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
+    }
+
+    /**
+     * 更改密码
+     */
+    @PostMapping("/update/password")
+    public BaseResponse<Boolean> updatePassword(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(userUpdateRequest == null, ErrorCode.PARAMS_ERROR);
+        String password = userUpdateRequest.getUserPassword();
+        String newPassword = userUpdateRequest.getNewPassword();
+        String checkPassword = userUpdateRequest.getCheckPassword();
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        boolean result = userService.changePassword(loginUser, password, newPassword, checkPassword);
+        if(result){
+            userService.userLogout(request);
+        }
+        return ResultUtils.success(result);
     }
 
 }

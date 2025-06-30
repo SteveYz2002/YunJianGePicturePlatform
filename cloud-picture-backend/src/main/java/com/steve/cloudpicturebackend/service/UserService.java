@@ -98,4 +98,9 @@ public interface UserService extends IService<User> {
      */
     boolean isAdmin(User user);
 
+    /**
+     * 修改密码
+     */
+    boolean changePassword(User user, String password, String newPassword, String checkPassword);
+
 }

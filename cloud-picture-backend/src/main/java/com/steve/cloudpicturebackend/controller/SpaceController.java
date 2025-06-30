@@ -9,6 +9,7 @@ import com.steve.cloudpicturebackend.constant.UserConstant;
 import com.steve.cloudpicturebackend.exception.BusinessException;
 import com.steve.cloudpicturebackend.exception.ErrorCode;
 import com.steve.cloudpicturebackend.exception.ThrowUtils;
+import com.steve.cloudpicturebackend.manager.auth.SpaceUserAuthManager;
 import com.steve.cloudpicturebackend.model.dto.space.*;
 import com.steve.cloudpicturebackend.model.entity.Space;
 import com.steve.cloudpicturebackend.model.entity.User;
@@ -42,6 +43,9 @@ public class SpaceController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     /**
      * 创建空间
@@ -142,8 +146,12 @@ public class SpaceController {
         // 查询数据库
         Space space = spaceService.getById(id);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
+        SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
+        User loginUser = userService.getLoginUser(request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        spaceVO.setPermissionList(permissionList);
         // 获取封装类
-        return ResultUtils.success(spaceService.getSpaceVO(space, request));
+        return ResultUtils.success(spaceVO);
     }
 
     /**
