@@ -132,6 +132,16 @@ public class Picture implements Serializable {
      */
     private Date reviewTime;
 
+    /**
+     * 分享次数
+     */
+    private Integer shareCount;
+
+    /**
+     * 下载次数
+     */
+    private Integer downloadCount;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

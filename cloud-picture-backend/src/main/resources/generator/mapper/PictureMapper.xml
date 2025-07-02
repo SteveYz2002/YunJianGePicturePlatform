@@ -28,6 +28,8 @@
         <result property="reviewMessage" column="reviewMessage"/>
         <result property="reviewerId" column="reviewerId"/>
         <result property="reviewTime" column="reviewTime"/>
+        <result property="shareCount" column="shareCount"/>
+        <result property="likeCount" column="likeCount"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -35,6 +37,6 @@
         ,url, thumbnailUrl,name,introduction,category,tags,
         picSize,picWidth,picHeight,picScale,picFormat,
         userId, spaceId, createTime,editTime,updateTime,isDelete,
-        reviewStatus,reviewMessage,reviewerId,reviewTime
+        reviewStatus,reviewMessage,reviewerId,reviewTime,shareCount,likeCount
     </sql>
 </mapper>

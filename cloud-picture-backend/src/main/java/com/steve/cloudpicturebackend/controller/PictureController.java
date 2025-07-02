@@ -1,5 +1,6 @@
 package com.steve.cloudpicturebackend.controller;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -441,4 +442,42 @@ public class PictureController {
         GetOutPaintingTaskResponse task = aliYunAiApi.getOutPaintingTask(taskId);
         return ResultUtils.success(task);
     }
+
+    /**
+     * 下载图片
+     *
+     * @param pictureDownLoadRequest 下载请求
+     * @param request            HTTP请求
+     * @return 响应结果
+     */
+    @PostMapping("/download")
+    public BaseResponse<PictureVO> downloadPicture(@RequestBody PictureDownLoadRequest pictureDownLoadRequest,
+                                             HttpServletRequest request) {
+        if (pictureDownLoadRequest == null || pictureDownLoadRequest.getPictureId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        PictureVO pictureVO = pictureService.downloadPicture(pictureDownLoadRequest, loginUser);
+        return ResultUtils.success(pictureVO);
+    }
+
+    /**
+     * 分享图片
+     *
+     * @param pictureShareRequest 分享请求
+     * @param request             HTTP请求
+     * @return 响应结果
+     */
+    @PostMapping("/share")
+    public BaseResponse<PictureVO> sharePicture(@RequestBody PictureShareRequest pictureShareRequest,
+                                                HttpServletRequest request) {
+        if (pictureShareRequest == null || pictureShareRequest.getPictureId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        PictureVO pictureVO = pictureService.sharePicture(pictureShareRequest, loginUser);
+        return ResultUtils.success(pictureVO);
+    }
+
+
 }

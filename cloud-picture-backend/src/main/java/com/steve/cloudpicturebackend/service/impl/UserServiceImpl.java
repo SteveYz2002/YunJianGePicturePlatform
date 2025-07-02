@@ -18,9 +18,12 @@ import com.steve.cloudpicturebackend.model.vo.UserVO;
 import com.steve.cloudpicturebackend.service.UserService;
 import com.steve.cloudpicturebackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +39,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 用户注册
@@ -83,7 +89,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public LoginUserVO userLogin(String userAccount, String userPassword, String uuid, String code, HttpServletRequest request) {
+        String captchaKey = "captcha_code:" + uuid;
+        ValueOperations<String, String> opsForValue = stringRedisTemplate.opsForValue();
+        String cachedValue = opsForValue.get(captchaKey);
+        if (cachedValue == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码已失效");
+        }
+        if (!cachedValue.equals(code)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+        // 删除redis中的验证码
+        opsForValue.getOperations().delete(captchaKey);
         //1. 校验
         if (StrUtil.hasBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");

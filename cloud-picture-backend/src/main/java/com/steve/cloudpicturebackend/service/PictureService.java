@@ -128,4 +128,20 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser                           登录用户
      */
     CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
+
+    /**
+     * 下载图片
+     *
+     * @param pictureDownLoadRequest 图片下载请求
+     * @param loginUser          登录用户
+     */
+    PictureVO downloadPicture(PictureDownLoadRequest pictureDownLoadRequest, User loginUser);
+
+    /**
+     * 分享图片
+     *
+     * @param pictureShareRequest 图片分享请求
+     * @param loginUser           登录用户
+     */
+    PictureVO sharePicture(PictureShareRequest pictureShareRequest, User loginUser);
 }

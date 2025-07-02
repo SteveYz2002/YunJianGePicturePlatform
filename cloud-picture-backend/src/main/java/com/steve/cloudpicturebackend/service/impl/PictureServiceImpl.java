@@ -770,23 +770,89 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         return aliYunAiApi.createOutPaintingTask(createOutPaintingTaskRequest);
     }
 
+    /**
+     * 下载图片计数
+     *
+     * @param pictureDownLoadRequest 图片下载请求
+     * @param loginUser              登录用户
+     */
+    @Override
+    public PictureVO downloadPicture(PictureDownLoadRequest pictureDownLoadRequest, User loginUser) {
+        // 校验参数
+        ThrowUtils.throwIf(pictureDownLoadRequest == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+
+        // 获取图片ID
+        Long pictureId = pictureDownLoadRequest.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR, "图片ID不合法");
+
+        // 判断图片是否存在
+        Picture picture = this.getById(pictureId);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+
+        // 更新点赞次数
+        boolean result = this.lambdaUpdate()
+                .eq(Picture::getId, pictureId)
+                .setSql("downloadCount = IFNULL(downloadCount, 0) + 1")
+                .update();
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "下载失败");
+        PictureVO pictureVO;
+        pictureVO = PictureVO.objToVo(picture);
+        log.info("用户 {} 下载了图片 {}", loginUser.getId(), pictureId);
+        return pictureVO;
+    }
+
+    /**
+     * 分享图片
+     *
+     * @param pictureShareRequest 图片分享请求
+     * @param loginUser           登录用户
+     */
+    @Override
+    public PictureVO sharePicture(PictureShareRequest pictureShareRequest, User loginUser) {
+        // 校验参数
+        ThrowUtils.throwIf(pictureShareRequest == null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+
+        // 获取图片ID
+        Long pictureId = pictureShareRequest.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR, "图片ID不合法");
+
+        // 判断图片是否存在
+        Picture picture = this.getById(pictureId);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+
+        // 更新分享次数
+        boolean result = this.lambdaUpdate()
+                .eq(Picture::getId, pictureId)
+                .setSql("shareCount = IFNULL(shareCount, 0) + 1")
+                .update();
+
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "分享失败");
+        PictureVO pictureVO;
+        pictureVO = PictureVO.objToVo(picture);
+        log.info("用户 {} 分享了图片 {}", loginUser.getId(), pictureId);
+        return pictureVO;
+    }
+
 
     /**
      * nameRule 格式：图片{序号}
+     *
      * @param pictureList 图片列表
      * @param nameRule    名称规则
      */
     private void fillPictureWithNameRule(List<Picture> pictureList, String nameRule) {
-        if(StrUtil.isBlank(nameRule) || CollUtil.isEmpty(pictureList)) {
+        if (StrUtil.isBlank(nameRule) || CollUtil.isEmpty(pictureList)) {
             return;
         }
         long count = 1;
-        try{
+        try {
             for (Picture picture : pictureList) {
                 String pictureName = nameRule.replaceAll("\\{序号}", String.valueOf(count++));
                 picture.setName(pictureName);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("名称解析错误", e);
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "名称解析错误");
         }

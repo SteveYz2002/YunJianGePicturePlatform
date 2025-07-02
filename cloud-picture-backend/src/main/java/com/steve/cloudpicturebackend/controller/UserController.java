@@ -1,6 +1,10 @@
 package com.steve.cloudpicturebackend.controller;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.FastByteArrayOutputStream;
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.code.kaptcha.Producer;
 import com.steve.cloudpicturebackend.annotation.AuthCheck;
 import com.steve.cloudpicturebackend.common.BaseResponse;
 import com.steve.cloudpicturebackend.common.DeleteRequest;
@@ -14,20 +18,35 @@ import com.steve.cloudpicturebackend.model.entity.User;
 import com.steve.cloudpicturebackend.model.vo.LoginUserVO;
 import com.steve.cloudpicturebackend.model.vo.UserVO;
 import com.steve.cloudpicturebackend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private Producer producer;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
 
     /**
      * 用户注册
@@ -50,7 +69,9 @@ public class UserController {
         ThrowUtils.throwIf(userLoginRequest == null, ErrorCode.PARAMS_ERROR);
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
+        String uuid = userLoginRequest.getUuid();
+        String code = userLoginRequest.getCode();
+        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, uuid, code, request);
         return ResultUtils.success(loginUserVO);
     }
 
@@ -195,6 +216,32 @@ public class UserController {
             userService.userLogout(request);
         }
         return ResultUtils.success(result);
+    }
+
+    @GetMapping("/captcha")
+    public BaseResponse<Map<String, Object>> getCaptcha() {
+        // 验证码存储到redis
+        String uuid = IdUtil.fastSimpleUUID();
+        String captchaKey = "captcha_code:" + uuid;
+
+        // 1+1=3 1+1@2
+        String captchaText = producer.createText();
+        String captchaStr = captchaText.substring(0, captchaText.lastIndexOf("@")); // 1+1
+        String captchaCode = captchaText.substring(captchaText.lastIndexOf("@") + 1); // 2
+        // 将算术运算结果存储到redis
+        stringRedisTemplate.opsForValue().set(captchaKey, captchaCode, 10, TimeUnit.MINUTES);
+        // 返回图片的base64编码
+        try (FastByteArrayOutputStream outputStream = new FastByteArrayOutputStream();) {
+            BufferedImage image = producer.createImage(captchaStr);
+            ImageIO.write(image, "jpg", outputStream);
+            Map<String, Object> map = new HashMap<>();
+            map.put("uuid", uuid);
+            map.put("img", Base64.encode(outputStream.toByteArray()));
+            return ResultUtils.success(map);
+        } catch (Exception e) {
+            log.error("生成验证码错误", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成验证码错误");
+        }
     }
 
 }
