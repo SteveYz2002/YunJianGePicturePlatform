@@ -4,11 +4,23 @@
     <a-row :gutter="[16, 16]">
       <!-- 图片展示区 -->
       <a-col :sm="24" :md="16" :xl="18">
-        <a-card title="图片预览" style="margin-left: 100px">
-          <a-image
-            style="max-height: 600px; object-fit: contain; "
-            :src="picture.url"
-          />
+        <a-card title="图片预览" class="preview-card">
+          <div style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+            <a-image
+              style="max-height: 600px; max-width: 100%; object-fit: contain;"
+              :src="picture.url"
+            />
+          </div>
+          <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center;">
+            <ShareAltOutlined style="margin-right: 4px" />
+            <span>分享次数：{{ picture.shareCount || 0 }}</span>
+            <FireFilled v-if="(picture.shareCount || 0) > 10" style="margin-left: 4px; color: #ff4d4f;" />
+          </div>
+          <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center;">
+            <DownloadOutlined style="margin-right: 4px" />
+            <span>下载次数：{{ picture.downloadCount || 0 }}</span>
+            <FireFilled v-if="(picture.downloadCount || 0) > 10" style="margin-left: 4px; color: #ff4d4f;" />
+          </div>
         </a-card>
       </a-col>
       <!-- 图片信息区 -->
@@ -92,21 +104,22 @@
         </a-card>
       </a-col>
     </a-row>
-    <ShareModal ref="shareModalRef" :link="shareLink" />
+    <ShareModal ref="shareModalRef" :link="shareLink" @close="handleShareModalClose" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import {
-  deletePictureUsingPost,
-  getPictureVoByIdUsingGet
+  deletePictureUsingPost, downloadPictureUsingPost,
+  getPictureVoByIdUsingGet,
+  sharePictureUsingPost
 } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
 import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { useRouter } from 'vue-router'
-import { DeleteOutlined, EditOutlined, ShareAltOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, ShareAltOutlined, DownloadOutlined, FireFilled } from '@ant-design/icons-vue'
 import { toHexColor } from '@/utils'
 import ShareModal from '@/components/ShareModal.vue'
 import { SPACE_PERMISSION_ENUM } from '@/constants/space.ts'
@@ -181,9 +194,34 @@ onMounted(() => {
 })
 
 // 处理下载
-const doDownload = () => {
-  console.log(picture.value.url)
-  downloadImage(picture.value.url)
+const doDownload = async () => {
+  if (!picture.value.id) {
+    message.error('图片ID不存在')
+    return
+  }
+
+  try {
+    // 先调用下载API更新下载次数
+    const res = await downloadPictureUsingPost({
+      pictureId: picture.value.id
+    })
+
+    if (res.data.code === 0 && res.data.data) {
+      // 执行实际下载
+      downloadImage(picture.value.url)
+      message.success('下载成功')
+
+      // 直接用API返回的完整对象更新picture
+      picture.value = res.data.data
+
+      console.log('下载次数已更新为:', picture.value.downloadCount)
+    } else {
+      message.error('下载失败，' + res.data.message)
+    }
+  } catch (error: any) {
+    console.error('下载失败:', error)
+    message.error('下载失败，' + error.message)
+  }
 }
 
 //-----------------------分享操作---------------
@@ -193,16 +231,46 @@ const shareModalRef = ref()
 const shareLink = ref<string>()
 
 // 分享
-const doShare = () => {
-  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
-  if (shareModalRef.value) {
-    shareModalRef.value.openModal()
+const doShare = async () => {
+  // 调用分享API
+  try {
+    const res = await sharePictureUsingPost({
+      pictureId: picture.value.id
+    })
+    if (res.data.code === 0) {
+      picture.value.shareCount = res.data.data.shareCount
+      // 更新分享链接
+      shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.value.id}`
+      // 打开分享弹窗
+      if (shareModalRef.value) {
+        shareModalRef.value.openModal()
+      }
+    } else {
+      message.error('分享失败，' + res.data.message)
+    }
+  } catch (error: any) {
+    message.error('分享失败，' + error.message)
   }
 }
+
+// 处理分享弹窗关闭
+const handleShareModalClose = () => {
+  // 刷新页面数据
+  fetchPictureDetail()
+}
+
+
 
 </script>
 
 <style scoped>
+.preview-card {
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
 
-
+.preview-card :deep(.ant-card-body) {
+  padding: 24px;
+}
 </style>

@@ -32,7 +32,7 @@
       </a-col>
       <!-- 空间使用排行分析 -->
       <a-col :xs="24" :md="12" class="card">
-        <SpaceRankAnalyze v-if="isAdmin" :spaceId="spaceId" :queryAll="queryAll" :queryPublic="queryPublic" />
+        <SpaceRankAnalyze v-if="isAdmin" :spaceId="spaceId" :queryAll="queryAll" :queryPublic="queryPublic"  />
       </a-col>
     </a-row>
   </div>

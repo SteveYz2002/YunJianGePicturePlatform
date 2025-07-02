@@ -4,8 +4,10 @@
       v-if="loginUserStore.loginUser.id"
       class="sider"
       width="200"
-      breakpoint="lg"
-      collapsed-width="0"
+      v-model:collapsed="collapsed"
+      :trigger="null"
+      collapsible
+      :collapsed-width="0"
     >
       <a-menu
         mode="inline"
@@ -14,12 +16,21 @@
         @click="doMenuClick"
       />
     </a-layout-sider>
+    <a-button
+      v-if="loginUserStore.loginUser.id"
+      class="trigger-button"
+      type="primary"
+      @click="toggleCollapsed"
+      :class="{ 'trigger-collapsed': collapsed }"
+    >
+      <MenuUnfoldOutlined v-if="collapsed" />
+      <MenuFoldOutlined v-else />
+    </a-button>
   </div>
-
 </template>
 <script lang="ts" setup>
 import { computed, h, ref, watchEffect } from 'vue'
-import { PictureOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons-vue'
+import { PictureOutlined, UserOutlined, TeamOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { SPACE_TYPE_ENUM } from '@/constants/space.ts'
@@ -27,6 +38,11 @@ import { listMyTeamSpaceUsingPost } from '@/api/spaceUserController.ts'
 import { message } from 'ant-design-vue'
 
 const loginUserStore = useLoginUserStore()
+const collapsed = ref(false)
+
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
+}
 
 // 固定菜单列表
 const fixedMenuItems = [
@@ -109,28 +125,87 @@ const doMenuClick = ({ key }: { key: string }) => {
 </script>
 
 <style scoped>
-#globalSider .ant-layout-sider {
-  background: none;
+#globalSider {
+  height: 100%;
 }
 
-.title-container {
-  display: flex;
-  align-items: baseline;
-  margin-left: 16px;
+#globalSider .sider {
+  background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid #e0e0e0;
+  height: 100%;
+  overflow-y: auto;
 }
 
-.title {
-  color: black;
-  font-size: 18px;
+
+#globalSider :deep(.ant-menu) {
+  background: transparent;
+  border-right: none;
 }
 
-.subtitle {
-  font-size: 12px;
-  color: black;
-  margin-left: 5px;
+#globalSider :deep(.ant-menu-item) {
+  margin: 8px 12px;
+  border-radius: 6px;
+  height: 40px;
+  line-height: 40px;
+  transition: all 0.3s ease;
 }
 
-.logo {
-  height: 48px;
+#globalSider :deep(.ant-menu-item:hover) {
+  background-color: rgba(100, 181, 246, 0.1);
+}
+
+#globalSider :deep(.ant-menu-item-selected) {
+  background-color: #64B5F6 !important;
+  color: white;
+  font-weight: 500;
+}
+
+#globalSider :deep(.ant-menu-item-selected .anticon) {
+  color: white;
+}
+
+#globalSider :deep(.ant-menu-item .anticon) {
+  font-size: 16px;
+}
+
+#globalSider :deep(.ant-menu-item-group-title) {
+  padding: 12px 16px 8px;
+  color: #5c6b77;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#globalSider :deep(.ant-menu-item-group-list .ant-menu-item) {
+  padding-left: 32px !important;
+  font-size: 14px;
+}
+
+#globalSider :deep(.ant-layout-sider-zero-width-trigger) {
+  top: 12px;
+  right: -32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 0 4px 4px 0;
+  background: #64B5F6;
+}
+
+.trigger-button {
+  position: absolute;
+  bottom: 64px;
+  left: 200px;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 0 4px 4px 0;
+  transition: all 0.3s;
+  z-index: 100;
+}
+
+.trigger-collapsed {
+  left: 0;
 }
 </style>

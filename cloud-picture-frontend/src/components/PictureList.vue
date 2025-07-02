@@ -31,24 +31,27 @@
               </div>
             </template>
             <template #actions v-if="showOp">
-                <ShareAltOutlined @click="e => doShare(picture, e)"/>
-                <SearchOutlined @click="e => doSearch(picture, e)"/>
-                <EditOutlined v-if="canEdit" @click="e => doEdit(picture, e)"/>
-                <DeleteOutlined v-if="canDelete" @click="e => doDelete(picture, e)"/>
+                <div @click="e => doShare(picture, e)" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <ShareAltOutlined />
+                  <span style="margin-left: 4px;">{{ picture.shareCount || 0 }}</span>
+                </div>
+              <SearchOutlined @click="e => doSearch(picture, e)"/>
+              <EditOutlined v-if="canEdit" @click="e => doEdit(picture, e)"/>
+              <DeleteOutlined v-if="canDelete" @click="e => doDelete(picture, e)"/>
             </template>
 
           </a-card>
         </a-list-item>
       </template>
     </a-list>
-    <ShareModal ref="shareModalRef" :link="shareLink" />
+    <ShareModal ref="shareModalRef" :link="shareLink" @close="handleShareModalClose" />
   </div>
 </template>
 
 <script setup lang="ts">
 import {EditOutlined, DeleteOutlined, SearchOutlined, ShareAltOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
-import { deletePictureUsingPost } from '@/api/pictureController.ts'
+import { deletePictureUsingPost, sharePictureUsingPost } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
 import ShareModal from '@/components/ShareModal.vue'
 import { ref } from 'vue'
@@ -124,13 +127,34 @@ const shareModalRef = ref()
 const shareLink = ref<string>()
 
 // 分享
-const doShare = (picture: API.PictureVO, e: Event) => {
-  // 阻止事件冒泡
+const doShare = async (picture: API.PictureVO, e: Event) => {
+  // 阻止事件冒泡s
   e.stopPropagation()
   shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
+
+  // 调用分享API更新分享次数
+  try {
+    const res = await sharePictureUsingPost({ pictureId: picture.id })
+    if (res.data.code === 0) {
+      // 更新前端显示的分享次数
+      picture.shareCount = res.data.data?.shareCount
+    } else {
+      message.error('分享次数更新失败')
+    }
+  } catch (error) {
+    console.error('分享API调用失败:', error)
+  }
+
+  // 打开分享弹窗
   if (shareModalRef.value) {
     shareModalRef.value.openModal()
   }
+}
+
+// 处理分享弹窗关闭事件
+const handleShareModalClose = () => {
+  // 刷新页面数据
+  props.onReload?.()
 }
 
 

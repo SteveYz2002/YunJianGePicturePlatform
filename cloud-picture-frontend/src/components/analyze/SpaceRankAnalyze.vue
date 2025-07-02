@@ -1,7 +1,7 @@
 <template>
   <div class="space-rank-analyze">
     <a-card title="空间使用排行分析">
-      <v-chart :option="options" style="height: 320px; max-width: 100%;" :loading="loading" />
+      <v-chart :option="options" style="height: 320px; max-width: 100%;" :loading="loading" @click="goTo"/>
     </a-card>
   </div>
 
@@ -13,6 +13,9 @@ import { getSpaceRankAnalyzeUsingPost } from '@/api/spaceAnalyzeController.ts'
 import { message } from 'ant-design-vue'
 import  VChart from 'vue-echarts'
 import  'echarts'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface Props {
   queryAll?: boolean
@@ -59,6 +62,7 @@ watchEffect(() => {
 // 图表选项
 const options = computed(() => {
   const spaceNames = dataList.value.map((item) => item.spaceName)
+  const spaceId = dataList.value.map((item) => item.id)
   const usageData = dataList.value.map((item) => (item.totalSize / (1024 * 1024)).toFixed(2)) // 转为 MB
 
   return {
@@ -81,9 +85,22 @@ const options = computed(() => {
         },
       },
     ],
+    spaceId: spaceId
   }
 })
 
+// 处理点击事件，跳转到空间详情页
+const goTo = (params: any) => {
+  // 获取点击的数据索引
+  const dataIndex = params.dataIndex
+  const spaceIds = options.value.spaceId
 
+  if (dataIndex !== undefined && spaceIds && spaceIds.length > dataIndex) {
+    // 获取对应的空间ID
+    const spaceId = spaceIds[dataIndex]
+    // 跳转到空间详情页
+    window.open(`/space/${spaceId}`)
+  }
+}
 
 </script>

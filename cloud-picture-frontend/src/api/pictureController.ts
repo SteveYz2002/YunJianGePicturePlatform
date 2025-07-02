@@ -17,6 +17,21 @@ export async function deletePictureUsingPost(
   })
 }
 
+/** downloadPicture POST /api/picture/download */
+export async function downloadPictureUsingPost(
+  body: API.PictureDownLoadRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePictureVO_>('/api/picture/download', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** editPicture POST /api/picture/edit */
 export async function editPictureUsingPost(
   body: API.PictureEditRequest,
@@ -194,6 +209,21 @@ export async function searchPictureByPictureUsingPost(
   options?: { [key: string]: any }
 ) {
   return request<API.BaseResponseListImageSearchResult_>('/api/picture/search/picture', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** sharePicture POST /api/picture/share */
+export async function sharePictureUsingPost(
+  body: API.PictureShareRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePictureVO_>('/api/picture/share', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

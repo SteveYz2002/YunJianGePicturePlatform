@@ -1,5 +1,6 @@
 <template>
   <div id="userManagePage" >
+    <h2>用户管理</h2>
     <!-- 搜索表单 -->
     <a-form layout="inline" :model="searchParams" @finish="doSearch" class="card" style="margin-bottom: 10px">
       <a-form-item label="账号">
@@ -225,5 +226,22 @@ onMounted(() => {
 <style scoped>
 .editable-row-operations a {
   margin-right: 8px;
+}
+
+/* 设置表格背景色与卡片一致 */
+:deep(.ant-table) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-thead > tr > th) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-tbody > tr:hover > td) {
+  background-color: #e8e8e8 !important;
 }
 </style>

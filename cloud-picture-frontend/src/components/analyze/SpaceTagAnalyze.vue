@@ -42,6 +42,7 @@ const fetchData = async () => {
     queryPublic: props.queryPublic
   })
   if (res.data.code === 0 && res.data.data) {
+    console.log('Tag analyze data:', res.data.data)
     dataList.value = res.data.data ?? []
   } else {
     message.error('获取数据失败' + res.data.message)
@@ -58,11 +59,12 @@ watchEffect(() => {
 
 // 图表选项
 const options = computed(() => {
+
   const tagData = dataList.value.map((item) => ({
-    name: item.tag,
+    name: !item.tag || item.tag === '' || item.tag === 'null' || item.tag === null ? '无标签' : item.tag,
     value: item.count,
   }))
-
+  console.log(tagData)
   return {
     tooltip: {
       trigger: 'item',

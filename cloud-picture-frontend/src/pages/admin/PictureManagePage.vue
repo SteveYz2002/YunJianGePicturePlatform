@@ -7,9 +7,9 @@
         <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+ 批量创建图片</a-button>
       </a-space>
     </a-flex>
-    <div style="margin-bottom: 16px"/>
+    <div style="margin-bottom: 16px; "/>
     <!-- 搜索表单 -->
-    <a-form layout="inline" :model="searchParams" @finish="doSearch" class="card" style="margin-bottom: 5px">
+    <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 5px;">
       <a-form-item label="关键词" name="searchText">
         <a-input
           v-model:value="searchParams.searchText"
@@ -50,7 +50,9 @@
       :data-source="dataList"
       :pagination="pagination"
       @change="doTableChange"
-      class="card">
+      class="card"
+      style="margin-top: 10px"
+    >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'id'" >
           <div @click="JumpTo(record.id)" style="color: blue; cursor: pointer; text-decoration: underline;">
@@ -311,6 +313,23 @@ const cancel = () => {
 
 </script>
 <style scoped>
+/* 设置表格背景色与卡片一致 */
+:deep(.ant-table) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-thead > tr > th) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-tbody > tr:hover > td) {
+  background-color: #e8e8e8 !important;
+}
+
 
 .editable-row-operations a {
   margin-right: 8px;

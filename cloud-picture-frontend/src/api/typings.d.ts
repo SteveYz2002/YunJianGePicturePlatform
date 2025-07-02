@@ -89,6 +89,12 @@ declare namespace API {
     message?: string
   }
 
+  type BaseResponseMapStringObject_ = {
+    code?: number
+    data?: Record<string, any>
+    message?: string
+  }
+
   type BaseResponsePagePicture_ = {
     code?: number
     data?: PagePicture_
@@ -326,6 +332,7 @@ declare namespace API {
   type Picture = {
     category?: string
     createTime?: string
+    downloadCount?: number
     editTime?: string
     id?: number
     introduction?: string
@@ -341,12 +348,17 @@ declare namespace API {
     reviewStatus?: number
     reviewTime?: string
     reviewerId?: number
+    shareCount?: number
     spaceId?: number
     tags?: string
     thumbnailUrl?: string
     updateTime?: string
     url?: string
     userId?: number
+  }
+
+  type PictureDownLoadRequest = {
+    pictureId?: number
   }
 
   type PictureEditByBatchRequest = {
@@ -398,6 +410,11 @@ declare namespace API {
     reviewStatus?: number
   }
 
+  type PictureShareRequest = {
+    pictureId?: number
+    platform?: string
+  }
+
   type PictureTagCategory = {
     categoryList?: string[]
     tagList?: string[]
@@ -431,6 +448,7 @@ declare namespace API {
   type PictureVO = {
     category?: string
     createTime?: string
+    downloadCount?: number
     editTime?: string
     id?: number
     introduction?: string
@@ -442,6 +460,7 @@ declare namespace API {
     picScale?: number
     picSize?: number
     picWidth?: number
+    shareCount?: number
     spaceId?: number
     tags?: string[]
     thumbnailUrl?: string
@@ -687,8 +706,10 @@ declare namespace API {
   }
 
   type UserLoginRequest = {
+    code?: string
     userAccount?: string
     userPassword?: string
+    uuid?: string
   }
 
   type UserQueryRequest = {

@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, withDefaults, defineExpose } from 'vue'
+import { defineProps, ref, withDefaults, defineExpose, defineEmits } from 'vue'
 
 /**
  * 定义组件属性类型
@@ -37,9 +37,14 @@ const openModal = () => {
   visible.value = true
 }
 
+// 定义事件
+const emit = defineEmits(['close'])
+
 // 关闭弹窗
 const closeModal = () => {
   visible.value = false
+  // 触发close事件
+  emit('close')
 }
 
 

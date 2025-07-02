@@ -14,7 +14,7 @@
     </a-flex>
     <div style="margin-bottom: 16px" />
     <!-- 搜索表单 -->
-    <a-form layout="inline" :model="searchParams" @finish="doSearch" class="card" style="margin-bottom: 5px">
+    <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 5px">
       <a-form-item label="空间名称" name="searchText">
         <a-input
           v-model:value="searchParams.spaceName"
@@ -53,7 +53,9 @@
       :data-source="dataList"
       :pagination="pagination"
       @change="doTableChange"
-      class="card">
+      class="card"
+      style="margin-top: 15px"
+    >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'spaceLevel'">
           <div>{{ SPACE_LEVEL_MAP[record.spaceLevel] }}</div>
@@ -229,6 +231,23 @@ const cancel = () => {
 
 .editable-row-operations a {
   margin-right: 8px;
+}
+
+/* 设置表格背景色与卡片一致 */
+:deep(.ant-table) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-thead > tr > th) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  background-color: #f3f3f3;
+}
+
+:deep(.ant-table-tbody > tr:hover > td) {
+  background-color: #e8e8e8 !important;
 }
 
 </style>

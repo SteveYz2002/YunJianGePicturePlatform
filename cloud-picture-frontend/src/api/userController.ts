@@ -14,6 +14,14 @@ export async function addUserUsingPost(body: API.UserAddRequest, options?: { [ke
   })
 }
 
+/** getCaptcha GET /api/user/captcha */
+export async function getCaptchaUsingGet(options?: { [key: string]: any }) {
+  return request<API.BaseResponseMapStringObject_>('/api/user/captcha', {
+    method: 'GET',
+    ...(options || {}),
+  })
+}
+
 /** deleteUser POST /api/user/delete */
 export async function deleteUserUsingPost(
   body: API.DeleteRequest,

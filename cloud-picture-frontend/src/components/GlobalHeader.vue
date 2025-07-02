@@ -1,7 +1,7 @@
 <template>
-  <div id="globalHeader" >
+  <div id="globalHeader" class="global-header">
     <a-row :wrap="false">
-      <a-col flex="200px">
+      <a-col flex="240px">
         <router-link to="/">
           <div class="title-bar">
             <img src="../assets/logo.png" alt="logo" class="logo" />
@@ -18,13 +18,13 @@
           mode="horizontal"
           :items="items"
           @click="doMenuClick"
+          style="margin-top: 10px"
         />
       </a-col>
       <!--用户信息展示栏-->
       <a-col flex="120px">
         <div class="user-login-status">
           <div v-if="loginUserStore.loginUser.id">
-
             <!--鼠标悬浮展示下拉框-->
             <a-dropdown>
               <a-space>
@@ -167,29 +167,124 @@ const doLogout = async () => {
 </script>
 
 <style scoped>
+.global-header {
+  background: linear-gradient(135deg, #87CEEB 0%, #64B5F6 100%);
+  transition: all 0.3s ease;
+  padding: 0 24px;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.global-header :deep(.ant-menu-horizontal) {
+  background-color: transparent;
+  border-bottom: none;
+  color: #fff;
+  line-height: 64px;
+}
+
+.global-header :deep(.ant-menu-horizontal > .ant-menu-item),
+.global-header :deep(.ant-menu-horizontal > .ant-menu-submenu) {
+  padding: 0 12px;
+  font-weight: 500;
+}
+
+.global-header :deep(.ant-menu) {
+  line-height: 46px;
+  height: 46px;
+}
+
+.global-header :deep(.ant-menu-horizontal) {
+  height: 46px;
+}
+
+.global-header :deep(.ant-menu-horizontal > .ant-menu-item:hover),
+.global-header :deep(.ant-menu-horizontal > .ant-menu-submenu:hover) {
+  color: #fff;
+  border-bottom-color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.global-header :deep(.ant-menu-horizontal > .ant-menu-item-selected) {
+  color: #fff;
+  border-bottom-color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
 #globalHeader .title-bar {
   display: flex;
   align-items: center;
+  height: 64px;
+  padding: 0 8px;
 }
 
 .title-container {
   display: flex;
-  align-items: baseline;
-  margin-left: 16px;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 12px;
+  white-space: nowrap; /* 防止换行 */
 }
 
 .title {
-  color: black;
-  font-size: 18px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
 }
 
 .subtitle {
-  font-size: 12px;
-  color: black;
-  margin-left: 5px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-left: 8px;
+  position: relative;
+  padding-left: 8px;
+}
+
+.subtitle::before {
+  content: '|';
+  position: absolute;
+  left: 0;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .logo {
-  height: 48px;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.user-login-status {
+  display: flex;
+  align-items: center;
+  height: 64px;
+}
+
+.user-login-status :deep(.ant-avatar) {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.user-login-status :deep(.ant-avatar:hover) {
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.user-login-status :deep(.ant-space) {
+  color: #fff;
+}
+
+.user-login-status :deep(.ant-btn-primary) {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-weight: 500;
+}
+
+.user-login-status :deep(.ant-btn-primary:hover) {
+  background: rgba(255, 255, 255, 0.3);
 }
 </style>

@@ -1,5 +1,15 @@
 <template>
   <div id="homePage" >
+    <!-- 标题 -->
+    <div class="title-container">
+      <div class="title-with-icon">
+        <div class="title-content">
+          <img src="../assets/logo.png" alt="网站图标" class="title-icon" />
+          <h1 class="artistic-title">云笺阁</h1>
+        </div>
+        <div class="subtitle">企业级云图库平台</div>
+      </div>
+    </div>
     <!-- 搜索框 -->
     <div class="search-bar">
       <a-input-search
@@ -10,7 +20,7 @@
         @search="doSearch"
       />
     </div>
-    <div class="card">
+    <div class="card" style="margin-top: 50px">
       <!-- 分类和标签筛选 -->
       <a-tabs v-model:activeKey="selectedCategory" @change="doSearch" >
         <a-tab-pane key="all" tab="全部" />
@@ -30,7 +40,7 @@
         </a-space>
       </div>
       <!-- 图片列表 -->
-      <PictureList :dataList="dataList" :loading="loading" />
+      <PictureList :show-op="true" :dataList="dataList" :loading="loading" />
       <!-- 分页 -->
       <a-pagination
         style="text-align: right"
@@ -63,7 +73,7 @@ const loading = ref(true)
 // 搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
   current: 1,
-  pageSize: 10,
+  pageSize: 12,
   sortField: 'createTime',
   sortOrder: 'descend'
 })
@@ -143,66 +153,93 @@ const router = useRouter()
   margin-bottom: 16px;
 }
 
+.title-container {
+  text-align: center;
+  padding: 32px 0;
+  margin-bottom: 24px;
+}
+
+.title-with-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  font-family: "Microsoft YaHei", sans-serif;
+  letter-spacing: 2px;
+  animation: subtitleFade 3s ease-in-out infinite;
+  opacity: 0.8;
+  margin-top: 8px;
+}
+
+@keyframes subtitleFade {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.title-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.artistic-title {
+  font-size: 48px;
+  font-family: "华文行楷", "楷体", cursive;
+  background: linear-gradient(45deg, #2196F3, #E91E63);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 4px;
+  animation: titleFloat 3s ease-in-out infinite;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes titleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+
 #homePage .search-bar {
   max-width: 480px;
   margin: 0 auto 16px;
-  background-color: white;
   padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, .12);
 }
 #homePage .tag-bar {
   margin-bottom: 16px;
 }
-.ellipsis-text {
-  /* 不换行 */
-  white-space: nowrap;
-  /* 溢出隐藏 */
-  overflow: hidden;
-  /* 溢出显示省略号 */
-  text-overflow: ellipsis;
-  /* 确保有宽度限制 */
-  max-width: 100%;
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-.picture-card :deep(.ant-card-body) {
-  padding: 0;
-}
 
-.image-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.image-details {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  padding: 10px;
-}
-
-.image-container:hover .image-details {
-  opacity: 1;
-}
-
-.image-details h4 {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
-.image-details .ant-tag {
-  margin: 2px;
-}
 </style>
