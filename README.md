@@ -18,7 +18,7 @@
   - 颜色选择器：vue3-colorpicker
 
 ### 后端技术
-- 框架：Spring Boot 2.7.6
+- 框架：Spring Boot 2
 - 数据库：MySQL + MyBatis Plus
 - 权限认证：Sa-Token
 - 缓存：
