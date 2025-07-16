@@ -326,7 +326,9 @@ declare namespace API {
     rightOffset?: number
     topOffset?: number
     xScale?: number
+    xscale?: number
     yScale?: number
+    yscale?: number
   }
 
   type Picture = {
@@ -337,6 +339,7 @@ declare namespace API {
     id?: number
     introduction?: string
     isDelete?: number
+    likeCount?: number
     name?: string
     picColor?: string
     picFormat?: string
@@ -375,6 +378,10 @@ declare namespace API {
     introduction?: string
     name?: string
     tags?: string[]
+  }
+
+  type PictureLikeOrUnlikeRequest = {
+    pictureId?: number
   }
 
   type PictureQueryRequest = {
@@ -452,6 +459,8 @@ declare namespace API {
     editTime?: string
     id?: number
     introduction?: string
+    isLiked?: boolean
+    likeCount?: number
     name?: string
     permissionList?: string[]
     picColor?: string

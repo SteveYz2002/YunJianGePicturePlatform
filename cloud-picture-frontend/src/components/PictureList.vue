@@ -31,10 +31,19 @@
               </div>
             </template>
             <template #actions v-if="showOp">
-                <div @click="e => doShare(picture, e)" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                  <ShareAltOutlined />
-                  <span style="margin-left: 4px;">{{ picture.shareCount || 0 }}</span>
+                <div @click="e => doLike(picture, e)" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <span v-if="picture.isLiked" style="color: #f5222d;">
+                    <svg width="18" height="18" viewBox="0 0 1024 1024" fill="currentColor"><path d="M923 283.6c-23.8-56.2-77.5-92.6-137.2-92.6-49.8 0-95.2 25.6-121.8 67.5-26.6-41.9-72-67.5-121.8-67.5-59.7 0-113.4 36.4-137.2 92.6-23.8 56.2-10.2 120.2 34.2 163.7l193.2 192.7c6.2 6.2 16.4 6.2 22.6 0l193.2-192.7c44.4-43.5 58-107.5 34.2-163.7z"></path></svg>
+                  </span>
+                  <span v-else style="color: #aaa;">
+                    <svg width="18" height="18" viewBox="0 0 1024 1024" fill="currentColor"><path d="M923 283.6c-23.8-56.2-77.5-92.6-137.2-92.6-49.8 0-95.2 25.6-121.8 67.5-26.6-41.9-72-67.5-121.8-67.5-59.7 0-113.4 36.4-137.2 92.6-23.8 56.2-10.2 120.2 34.2 163.7l193.2 192.7c6.2 6.2 16.4 6.2 22.6 0l193.2-192.7c44.4-43.5 58-107.5 34.2-163.7z" fill="none" stroke="currentColor" stroke-width="60"/></svg>
+                  </span>
+                  <span style="margin-left: 4px;">{{ picture.likeCount || 0 }}</span>
                 </div>
+              <div @click="e => doShare(picture, e)" style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <ShareAltOutlined />
+                <span style="margin-left: 4px;">{{ picture.shareCount || 0 }}</span>
+              </div>
               <SearchOutlined @click="e => doSearch(picture, e)"/>
               <EditOutlined v-if="canEdit" @click="e => doEdit(picture, e)"/>
               <DeleteOutlined v-if="canDelete" @click="e => doDelete(picture, e)"/>
@@ -51,10 +60,11 @@
 <script setup lang="ts">
 import {EditOutlined, DeleteOutlined, SearchOutlined, ShareAltOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
-import { deletePictureUsingPost, sharePictureUsingPost } from '@/api/pictureController.ts'
+import { deletePictureUsingPost, sharePictureUsingPost, likePictureUsingPost, unlikePictureUsingPost } from '@/api/pictureController.ts'
 import { message } from 'ant-design-vue'
 import ShareModal from '@/components/ShareModal.vue'
 import { ref } from 'vue'
+import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 
 interface Props{
   dataList?: API.PictureVO[]
@@ -155,6 +165,43 @@ const doShare = async (picture: API.PictureVO, e: Event) => {
 const handleShareModalClose = () => {
   // 刷新页面数据
   props.onReload?.()
+}
+
+const loginUserStore = useLoginUserStore()
+
+const doLike = async (picture: API.PictureVO, e: Event) => {
+  e.stopPropagation()
+  if (!loginUserStore.loginUser || !loginUserStore.loginUser.id) {
+    message.warning('请先登录后再点赞')
+    return
+  }
+  try {
+    if (picture.isLiked) {
+      // 取消点赞
+      const res = await unlikePictureUsingPost({
+        pictureId: picture.id
+      })
+      if (res.data.code === 0) {
+        picture.isLiked = false
+        picture.likeCount = (picture.likeCount || 1) - 1
+      } else {
+        message.error(res.data.message || '取消点赞失败')
+      }
+    } else {
+      // 点赞
+      const res = await likePictureUsingPost({
+        pictureId: picture.id
+      })
+      if (res.data.code === 0) {
+        picture.isLiked = true
+        picture.likeCount = (picture.likeCount || 0) + 1
+      } else {
+        message.error(res.data.message || '点赞失败')
+      }
+    }
+  } catch (error) {
+    message.error('操作失败')
+  }
 }
 
 

@@ -21,6 +21,11 @@
             <span>下载次数：{{ picture.downloadCount || 0 }}</span>
             <FireFilled v-if="(picture.downloadCount || 0) > 10" style="margin-left: 4px; color: #ff4d4f;" />
           </div>
+          <div style="margin-top: 16px; display: flex; align-items: center; justify-content: center;">
+            <LikeOutlined  style="margin-right: 4px" />
+            <span>点赞次数：{{ picture.likeCount || 0 }}</span>
+            <FireFilled v-if="(picture.shareCount || 0) > 10" style="margin-left: 4px; color: #ff4d4f;" />
+          </div>
         </a-card>
       </a-col>
       <!-- 图片信息区 -->
@@ -119,7 +124,7 @@ import { message } from 'ant-design-vue'
 import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { useRouter } from 'vue-router'
-import { DeleteOutlined, EditOutlined, ShareAltOutlined, DownloadOutlined, FireFilled } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, ShareAltOutlined, DownloadOutlined, FireFilled, LikeOutlined } from '@ant-design/icons-vue'
 import { toHexColor } from '@/utils'
 import ShareModal from '@/components/ShareModal.vue'
 import { SPACE_PERMISSION_ENUM } from '@/constants/space.ts'
@@ -215,6 +220,9 @@ const doDownload = async () => {
       picture.value = res.data.data
 
       console.log('下载次数已更新为:', picture.value.downloadCount)
+
+      // 刷新页面数据，确保所有数据都是最新的
+      await fetchPictureDetail()
     } else {
       message.error('下载失败，' + res.data.message)
     }

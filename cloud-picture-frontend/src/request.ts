@@ -1,9 +1,12 @@
 import axios from 'axios'
 import { message } from 'ant-design-vue'
 
+const DEV_BASE_URL = "http://localhost:8123";
+const PROD_BASE_URL = "http://152.136.123.15";
+
 // 创建 Axios 实例
 const myAxios = axios.create({
-  baseURL: 'http://localhost:8123',
+  baseURL: DEV_BASE_URL,
   timeout: 60000,
   withCredentials: true,
 })

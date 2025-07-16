@@ -1,9 +1,17 @@
 <template>
   <div class="login-container">
-    <div id="userRegisterPage" class="login-box">
-      <h2 class="title">云图库 - 用户注册</h2>
-      <div class="desc">企业级智能协同云图库</div>
-      <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
+    <div class="login-layout">
+      <div class="login-left">
+        <div class="welcome-content">
+          <h1>欢迎加入云笺阁云图库平台</h1>
+          <p>注册账号，开启您的图片管理之旅</p>
+        </div>
+      </div>
+      <div class="login-right">
+        <div id="userRegisterPage" class="login-box">
+          <h2 class="title">用户注册</h2>
+          <div class="desc">云笺阁</div>
+          <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
         <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
           <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
         </a-form-item>
@@ -32,15 +40,16 @@
         <a-form-item>
           <a-button type="primary" html-type="submit" style="width: 100%">注册</a-button>
         </a-form-item>
-      </a-form>
+          </a-form>
+        </div>
+      </div>
     </div>
   </div>
-
 </template>
 
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { userRegisterUsingPost } from '@/api/userController.ts'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { message } from 'ant-design-vue'
@@ -75,6 +84,14 @@ const handleSubmit = async (values: any) => {
   }
 }
 
+onMounted(() => {
+  // 动态加载Google Fonts
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = 'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&family=Poppins:wght@400;700&display=swap'
+  document.head.appendChild(link)
+})
+
 </script>
 
 <style scoped>
@@ -84,12 +101,10 @@ const handleSubmit = async (values: any) => {
 }
 
 .title {
-  text-align: center;
   margin-bottom: 16px;
 }
 
 .desc {
-  text-align: center;
   color: #bbb;
   margin-bottom: 16px;
 }
@@ -102,20 +117,89 @@ const handleSubmit = async (values: any) => {
 }
 
 .login-container {
-  height: 70vh;
-  overflow: hidden;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fdfdfd;
+  background-color: #f0f2f5;
+}
+
+.login-layout {
+  display: flex;
+  width: 80%;
+  max-width: 1200px;
+  min-height: 600px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: white;
+}
+
+.welcome-content {
+  text-align: left;
+  max-width: 400px;
+  margin-top: -50px;
+}
+
+.welcome-content h1 {
+  font-family: 'Dancing Script', cursive;
+  font-size: 38px;
+  margin-bottom: 20px;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+}
+
+.welcome-content p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  opacity: 0.9;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+}
+
+.login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
 }
 
 .login-box {
-  position: absolute;
-  width: 350px;
+  width: 100%;
+  max-width: 400px;
   padding: 30px;
   border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-  background-color: rgba(255, 255, 255, .5);
+  background-color: #fff;
+}
+
+@media (max-width: 768px) {
+  .login-layout {
+    width: 95%;
+    flex-direction: column;
+  }
+
+  .login-left {
+    padding: 20px;
+  }
+
+  .login-right {
+    padding: 20px;
+  }
+
+  .welcome-content {
+    text-align: center;
+  }
 }
 </style>

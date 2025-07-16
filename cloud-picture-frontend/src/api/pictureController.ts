@@ -92,6 +92,21 @@ export async function getPictureVoByIdUsingGet(
   })
 }
 
+/** likePicture POST /api/picture/like */
+export async function likePictureUsingPost(
+  body: API.PictureLikeOrUnlikeRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseBoolean_>('/api/picture/like', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** listPictureByPage POST /api/picture/list/page */
 export async function listPictureByPageUsingPost(
   body: API.PictureQueryRequest,
@@ -237,6 +252,21 @@ export async function sharePictureUsingPost(
 export async function listPictureTagCategoryUsingGet(options?: { [key: string]: any }) {
   return request<API.BaseResponsePictureTagCategory_>('/api/picture/tag_category', {
     method: 'GET',
+    ...(options || {}),
+  })
+}
+
+/** unlikePicture POST /api/picture/unlike */
+export async function unlikePictureUsingPost(
+  body: API.PictureLikeOrUnlikeRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseBoolean_>('/api/picture/unlike', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   })
 }

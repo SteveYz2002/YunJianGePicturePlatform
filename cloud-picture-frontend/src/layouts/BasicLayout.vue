@@ -26,7 +26,7 @@ import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 
 const route = useRoute()
-const isLoginPage = computed(() => route.path === '/user/login')
+const isLoginPage = computed(() => route.path === '/user/login' || route.path === '/user/register')
 </script>
 
 <style scoped>
