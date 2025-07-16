@@ -124,6 +124,16 @@ public class PictureVO implements Serializable {
      */
     private Integer downloadCount;
 
+    /**
+     * 点赞数
+     */
+    private Integer likeCount;
+
+    /**
+     * 当前用户是否已点赞
+     */
+    private Boolean isLiked;
+
 
     private static final long serialVersionUID = 1L;
 
@@ -152,6 +162,8 @@ public class PictureVO implements Serializable {
         BeanUtils.copyProperties(picture, pictureVO);
         // 类型不同，需要转换
         pictureVO.setTags(JSONUtil.toList(picture.getTags(), String.class));
+        pictureVO.setLikeCount(picture.getLikeCount());
+        // isLiked 由业务层设置
         return pictureVO;
     }
 }

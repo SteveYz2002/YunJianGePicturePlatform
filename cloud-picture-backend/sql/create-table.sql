@@ -115,5 +115,19 @@ create table if not exists space_user
     INDEX idx_userId (userId)                       -- 提升按用户查询的性能
 ) comment '空间用户关联' collate = utf8mb4_unicode_ci;
 
-
 ALTER TABLE picture
+    ADD COLUMN likeCount INT DEFAULT 0 NOT NULL COMMENT '点赞数';
+
+use cloud_picture;
+-- 图片点赞表
+CREATE TABLE IF NOT EXISTS picture_like (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    userId BIGINT NOT NULL COMMENT '用户ID',
+    pictureId BIGINT NOT NULL COMMENT '图片ID',
+    createTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '点赞时间',
+    UNIQUE KEY uk_user_picture (userId, pictureId),
+    INDEX idx_pictureId (pictureId),
+    INDEX idx_userId (userId)
+) COMMENT='图片点赞表' COLLATE = utf8mb4_unicode_ci;
+
+

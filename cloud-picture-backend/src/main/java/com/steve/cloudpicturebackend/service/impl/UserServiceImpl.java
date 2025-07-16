@@ -129,8 +129,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         StpKit.SPACE.login(user.getId());
         StpKit.SPACE.getSession().set(UserConstant.USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
-
-        //5. TODO 验证码
     }
 
     /**

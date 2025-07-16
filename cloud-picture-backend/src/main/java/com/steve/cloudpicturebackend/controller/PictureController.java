@@ -479,5 +479,25 @@ public class PictureController {
         return ResultUtils.success(pictureVO);
     }
 
+    /**
+     * 点赞图片
+     */
+    @PostMapping("/like")
+    public BaseResponse<Boolean> likePicture(@RequestBody PictureLikeOrUnlikeRequest pictureLikeOrUnlikeRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        pictureService.likePicture(pictureLikeOrUnlikeRequest.getPictureId(), loginUser);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 取消点赞图片
+     */
+    @PostMapping("/unlike")
+    public BaseResponse<Boolean> unlikePicture(@RequestBody PictureLikeOrUnlikeRequest pictureLikeOrUnlikeRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        pictureService.unlikePicture(pictureLikeOrUnlikeRequest.getPictureId(), loginUser);
+        return ResultUtils.success(true);
+    }
+
 
 }

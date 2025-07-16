@@ -142,6 +142,11 @@ public class Picture implements Serializable {
      */
     private Integer downloadCount;
 
+    /**
+     * 点赞数
+     */
+    private Integer likeCount;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

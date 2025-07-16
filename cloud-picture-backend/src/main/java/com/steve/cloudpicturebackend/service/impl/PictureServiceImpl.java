@@ -23,12 +23,14 @@ import com.steve.cloudpicturebackend.mapper.PictureMapper;
 import com.steve.cloudpicturebackend.model.dto.file.UploadPictureResult;
 import com.steve.cloudpicturebackend.model.dto.picture.*;
 import com.steve.cloudpicturebackend.model.entity.Picture;
+import com.steve.cloudpicturebackend.model.entity.PictureLike;
 import com.steve.cloudpicturebackend.model.entity.Space;
 import com.steve.cloudpicturebackend.model.entity.User;
 import com.steve.cloudpicturebackend.model.enums.PictureReviewStatusEnum;
 import com.steve.cloudpicturebackend.model.vo.PictureVO;
 import com.steve.cloudpicturebackend.model.vo.UserVO;
 import com.steve.cloudpicturebackend.service.PictureService;
+import com.steve.cloudpicturebackend.service.PictureLikeService;
 import com.steve.cloudpicturebackend.service.SpaceService;
 import com.steve.cloudpicturebackend.service.UserService;
 import com.steve.cloudpicturebackend.utils.ColorSimilarUtils;
@@ -82,6 +84,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Resource
     private AliYunAiApi aliYunAiApi;
+
+    @Resource
+    private PictureLikeService pictureLikeService;
 
     @Override
     public void validPicture(Picture picture) {
@@ -274,6 +279,10 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             this.clearPictureFile(oldPicture);
         }
         boolean result = this.saveOrUpdate(picture);
+        // 从数据库中删除这个图片
+        if(result) {
+            this.removeById(picture.getId());
+        }
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
         return PictureVO.objToVo(picture);
     }
@@ -289,6 +298,20 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             User user = userService.getById(userId);
             UserVO userVO = userService.getUserVO(user);
             pictureVO.setUser(userVO);
+        }
+        // 设置 isLiked 字段
+        try {
+            User loginUser = userService.getLoginUser(request);
+            boolean liked = false;
+            if (loginUser != null) {
+                liked = pictureLikeService.lambdaQuery()
+                        .eq(com.steve.cloudpicturebackend.model.entity.PictureLike::getUserId, loginUser.getId())
+                        .eq(com.steve.cloudpicturebackend.model.entity.PictureLike::getPictureId, picture.getId())
+                        .exists();
+            }
+            pictureVO.setIsLiked(liked);
+        } catch (Exception ignored) {
+            pictureVO.setIsLiked(false);
         }
         return pictureVO;
     }
@@ -319,6 +342,20 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                 user = userIdUserListMap.get(userId).get(0);
             }
             pictureVO.setUser(userService.getUserVO(user));
+            // 设置 isLiked 字段
+            try {
+                User loginUser = userService.getLoginUser(request);
+                boolean liked = false;
+                if (loginUser != null) {
+                    liked = pictureLikeService.lambdaQuery()
+                            .eq(com.steve.cloudpicturebackend.model.entity.PictureLike::getUserId, loginUser.getId())
+                            .eq(com.steve.cloudpicturebackend.model.entity.PictureLike::getPictureId, pictureVO.getId())
+                            .exists();
+                }
+                pictureVO.setIsLiked(liked);
+            } catch (Exception ignored) {
+                pictureVO.setIsLiked(false);
+            }
         });
         pictureVOPage.setRecords(pictureVOList);
         return pictureVOPage;
@@ -833,6 +870,56 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         pictureVO = PictureVO.objToVo(picture);
         log.info("用户 {} 分享了图片 {}", loginUser.getId(), pictureId);
         return pictureVO;
+    }
+
+    @Override
+    public void likePicture(Long pictureId, User loginUser) {
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR, "图片ID不合法");
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+        // 检查图片是否存在
+        Picture picture = this.getById(pictureId);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+        // 检查是否已点赞
+        boolean alreadyLiked = pictureLikeService.lambdaQuery()
+                .eq(PictureLike::getUserId, loginUser.getId())
+                .eq(PictureLike::getPictureId, pictureId)
+                .exists();
+        ThrowUtils.throwIf(alreadyLiked, ErrorCode.OPERATION_ERROR, "请勿重复点赞");
+        // 新增点赞记录
+        PictureLike like = new PictureLike();
+        like.setUserId(loginUser.getId());
+        like.setPictureId(pictureId);
+        like.setCreateTime(new java.util.Date());
+        boolean save = pictureLikeService.save(like);
+        ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR, "点赞失败");
+        // 更新图片点赞数
+        this.lambdaUpdate()
+                .eq(Picture::getId, pictureId)
+                .setSql("likeCount = IFNULL(likeCount, 0) + 1")
+                .update();
+    }
+
+    @Override
+    public void unlikePicture(Long pictureId, User loginUser) {
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR, "图片ID不合法");
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+        // 检查图片是否存在
+        Picture picture = this.getById(pictureId);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "图片不存在");
+        // 检查是否已点赞
+        PictureLike like = pictureLikeService.lambdaQuery()
+                .eq(PictureLike::getUserId, loginUser.getId())
+                .eq(PictureLike::getPictureId, pictureId)
+                .one();
+        ThrowUtils.throwIf(like == null, ErrorCode.OPERATION_ERROR, "未点赞无法取消");
+        // 删除点赞记录
+        boolean remove = pictureLikeService.removeById(like.getId());
+        ThrowUtils.throwIf(!remove, ErrorCode.OPERATION_ERROR, "取消点赞失败");
+        // 更新图片点赞数
+        this.lambdaUpdate()
+                .eq(Picture::getId, pictureId)
+                .setSql("likeCount = IFNULL(likeCount, 1) - 1")
+                .update();
     }
 
 

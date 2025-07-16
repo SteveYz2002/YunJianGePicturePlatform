@@ -144,4 +144,18 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser           登录用户
      */
     PictureVO sharePicture(PictureShareRequest pictureShareRequest, User loginUser);
+
+    /**
+     * 点赞图片
+     * @param pictureId 图片ID
+     * @param loginUser 当前登录用户
+     */
+    void likePicture(Long pictureId, User loginUser);
+
+    /**
+     * 取消点赞图片
+     * @param pictureId 图片ID
+     * @param loginUser 当前登录用户
+     */
+    void unlikePicture(Long pictureId, User loginUser);
 }
