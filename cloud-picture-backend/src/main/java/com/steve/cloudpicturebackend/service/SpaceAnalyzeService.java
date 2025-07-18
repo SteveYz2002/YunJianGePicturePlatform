@@ -1,17 +1,13 @@
 package com.steve.cloudpicturebackend.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.steve.cloudpicturebackend.model.dto.space.SpaceAddRequest;
-import com.steve.cloudpicturebackend.model.dto.space.SpaceQueryRequest;
 import com.steve.cloudpicturebackend.model.dto.space.analyze.*;
 import com.steve.cloudpicturebackend.model.entity.Space;
 import com.steve.cloudpicturebackend.model.entity.User;
-import com.steve.cloudpicturebackend.model.vo.SpaceVO;
+
 import com.steve.cloudpicturebackend.model.vo.space.analyze.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

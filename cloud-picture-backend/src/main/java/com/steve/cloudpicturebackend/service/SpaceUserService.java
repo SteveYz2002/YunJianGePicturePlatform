@@ -5,9 +5,7 @@ import com.steve.cloudpicturebackend.model.dto.spaceuser.SpaceUserAddRequest;
 import com.steve.cloudpicturebackend.model.dto.spaceuser.SpaceUserQueryRequest;
 import com.steve.cloudpicturebackend.model.entity.SpaceUser;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.steve.cloudpicturebackend.model.entity.User;
 import com.steve.cloudpicturebackend.model.vo.SpaceUserVO;
-import com.steve.cloudpicturebackend.model.vo.SpaceVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

@@ -1,6 +1,5 @@
 package com.steve.cloudpicturebackend.utils;
 
-import java.awt.*;
 
 /**
  * 工具类：颜色转换
