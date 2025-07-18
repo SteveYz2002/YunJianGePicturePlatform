@@ -23,7 +23,7 @@ const defaultLocale = zhCN;
 dayjs.locale(defaultLocale.locale);
 
 app.use(createPinia())
-app.use(Antd, )
+app.use(Antd)
 app.use(router)
 app.use(VueCropper)
 

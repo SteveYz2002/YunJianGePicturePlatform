@@ -117,7 +117,8 @@ onMounted(() => {
 }
 
 .login-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 41px); /* 减去页脚的高度 */
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
