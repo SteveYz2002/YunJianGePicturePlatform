@@ -397,3 +397,57 @@ export async function uploadPictureByUrlUsingPost(
     ...(options || {}),
   })
 }
+
+/** createPictureTextToImageTask POST /api/picture/text_to_image/create_task */
+export async function createPictureTextToImageTaskUsingPost(
+  body: API.CreatePictureTextToImageTaskRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseCreateTextToImageTaskResponse_>(
+    '/api/picture/text_to_image/create_task',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    }
+  )
+}
+
+/** getPictureTextToImageTask GET /api/picture/text_to_image/get_task */
+export async function getPictureTextToImageTaskUsingGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getPictureTextToImageTaskUsingGETParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseGetTextToImageTaskResponse_>(
+    '/api/picture/text_to_image/get_task',
+    {
+      method: 'GET',
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  )
+}
+
+/** saveGeneratedImage POST /api/picture/text_to_image/save_image */
+export async function saveGeneratedImageUsingPost(
+  body: API.SaveGeneratedImageRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponsePictureVO_>(
+    '/api/picture/text_to_image/save_image',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    }
+  )
+}

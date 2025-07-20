@@ -221,6 +221,11 @@ declare namespace API {
     id?: number
   }
 
+  type getSpaceListByUserIdUsingGETParams = {
+    /** userId */
+    userId: number
+  }
+
   type getSpaceByIdUsingGETParams = {
     /** id */
     id?: number
@@ -759,4 +764,72 @@ declare namespace API {
     userProfile?: string
     userRole?: string
   }
+
+  type CreatePictureTextToImageTaskRequest = {
+    prompt: string;
+    negativePrompt?: string;
+    spaceId?: number;
+    parameters?: {
+      size?: string;
+      guidanceScale?: number;
+      steps?: number;
+      n?: number;
+      seed?: number;
+      addWatermark?: boolean;
+    };
+  };
+
+  type CreateTextToImageTaskResponse = {
+    output?: {
+      taskId?: string;
+      taskStatus?: string;
+    };
+    code?: string;
+    message?: string;
+    requestId?: string;
+  };
+  
+  type BaseResponseCreateTextToImageTaskResponse_ = {
+    code?: number;
+    data?: CreateTextToImageTaskResponse;
+    message?: string;
+  };
+
+  type GetTextToImageTaskResponse = {
+    requestId?: string;
+    output?: {
+      taskId?: string;
+      taskStatus?: string;
+      submitTime?: string;
+      scheduledTime?: string;
+      endTime?: string;
+      results?: {
+        url?: string;
+      }[];
+      code?: string;
+      message?: string;
+      taskMetrics?: {
+        total?: number;
+        succeeded?: number;
+        failed?: number;
+      };
+    };
+  };
+  
+  type BaseResponseGetTextToImageTaskResponse_ = {
+    code?: number;
+    data?: GetTextToImageTaskResponse;
+    message?: string;
+  };
+
+  type SaveGeneratedImageRequest = {
+    taskId?: string;
+    imageUrl: string;
+    prompt?: string;
+    spaceId?: number;
+  };
+  
+  type getPictureTextToImageTaskUsingGETParams = {
+    taskId: string;
+  };
 }

@@ -41,6 +41,17 @@
       
       <!-- 快捷操作区域 - 绝对定位在底部 -->
       <div class="quick-actions">
+        <a-tooltip placement="right" title="AI文生图">
+          <a-button 
+            type="primary" 
+            shape="circle" 
+            class="quick-action-btn ai-btn"
+            @click="openTextToImageModal"
+          >
+            <template #icon><BulbOutlined /></template>
+          </a-button>
+        </a-tooltip>
+        
         <a-tooltip placement="right" title="创建图片">
           <a-button 
             type="primary" 
@@ -62,7 +73,11 @@
           </a-button>
         </a-tooltip>
       </div>
+      
     </a-layout-sider>
+    
+    <!-- Text To Image Modal -->
+    <ImageTextToImage ref="textToImageModalRef" @success="handleTextToImageSuccess" />
     
     <!-- 折叠按钮 -->
     <a-button
@@ -90,13 +105,15 @@ import {
   SettingOutlined,
   StarOutlined,
   FolderOutlined,
-  GlobalOutlined
+  GlobalOutlined,
+  BulbOutlined
 } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
 import { SPACE_TYPE_ENUM } from '@/constants/space.ts'
 import { listMyTeamSpaceUsingPost } from '@/api/spaceUserController.ts'
 import { message } from 'ant-design-vue'
+import ImageTextToImage from '@/components/ImageTextToImage.vue'
 
 const loginUserStore = useLoginUserStore()
 const router = useRouter()
@@ -237,6 +254,23 @@ const doMenuClick = ({ key }: { key: string }) => {
   // 这样即使页面重定向，选中状态也会保持
   setSelectedMenu(key)
   router.push(key)
+}
+
+// Text To Image Modal
+const textToImageModalRef = ref<InstanceType<typeof ImageTextToImage> | null>(null)
+
+const openTextToImageModal = () => {
+  textToImageModalRef.value?.openModal()
+}
+
+const handleTextToImageSuccess = (newPicture: API.PictureVO) => {
+  // 处理成功后的逻辑，例如添加到图片列表
+  console.log('Text to Image Success:', newPicture)
+  message.success('AI生成图片已保存')
+  // 跳转到图片详情页
+  if (newPicture.id) {
+    router.push(`/picture/${newPicture.id}`)
+  }
 }
 </script>
 
@@ -475,13 +509,12 @@ const doMenuClick = ({ key }: { key: string }) => {
   box-shadow: var(--shadow-md);
 }
 
-.create-btn {
-  background: var(--primary-gradient);
-  border: none;
+.quick-action-btn.ai-btn {
+  background-color: #722ed1;
 }
 
-.create-btn:hover {
-  filter: brightness(1.1);
+.quick-action-btn.create-btn {
+  background-color: #1890ff;
 }
 
 .settings-btn {

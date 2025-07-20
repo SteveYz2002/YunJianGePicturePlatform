@@ -129,3 +129,18 @@ export async function updateSpaceUsingPost(
     ...(options || {}),
   })
 }
+
+/** 根据用户ID获取空间列表 GET /api/space/list/user */
+export async function getSpaceListByUserIdUsingGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getSpaceListByUserIdUsingGETParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseListSpaceVO_>('/api/space/list/user', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  })
+}
