@@ -239,4 +239,19 @@ public class SpaceController {
                 )).collect(Collectors.toList());
         return ResultUtils.success(spaceLevelList);
     }
+
+    /**
+     * 根据用户ID获取空间列表（VO）
+     *
+     * @param userId 用户ID
+     * @return 该用户的空间列表
+     */
+    @GetMapping("/list/user")
+    public BaseResponse<List<SpaceVO>> listSpaceVOByUserId(@RequestParam("userId") Long userId) {
+        if (userId == null || userId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<SpaceVO> spaceVOList = spaceService.listSpaceVOByUserId(userId);
+        return ResultUtils.success(spaceVOList);
+    }
 }

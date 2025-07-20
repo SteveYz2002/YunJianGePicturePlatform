@@ -10,6 +10,7 @@ import com.steve.cloudpicturebackend.model.entity.User;
 import com.steve.cloudpicturebackend.model.vo.SpaceVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author Administrator
@@ -76,5 +77,13 @@ public interface SpaceService extends IService<Space> {
      * @param space     空间
      */
     void checkSpaceAuth(User loginUser, Space space);
+
+    /**
+     * 根据用户ID获取该用户的空间列表（VO）
+     *
+     * @param userId 用户ID
+     * @return 该用户的空间列表
+     */
+    List<SpaceVO> listSpaceVOByUserId(Long userId);
 
 }

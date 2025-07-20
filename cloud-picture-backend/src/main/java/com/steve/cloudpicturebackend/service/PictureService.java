@@ -2,7 +2,9 @@ package com.steve.cloudpicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.CreateTextToImageTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.GetTextToImageTaskResponse;
 import com.steve.cloudpicturebackend.model.dto.picture.*;
 import com.steve.cloudpicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -128,6 +130,14 @@ public interface PictureService extends IService<Picture> {
      * @param loginUser                           登录用户
      */
     CreateOutPaintingTaskResponse createPictureOutPaintingTask(CreatePictureOutPaintingTaskRequest createPictureOutPaintingTaskRequest, User loginUser);
+
+    /**
+     * 创建文生图任务
+     *
+     * @param createPictureTextToImageTaskRequest 文生图任务请求
+     * @param loginUser                           登录用户
+     */
+    CreateTextToImageTaskResponse createPictureTextToImageTask(CreatePictureTextToImageTaskRequest createPictureTextToImageTaskRequest, User loginUser);
 
     /**
      * 下载图片

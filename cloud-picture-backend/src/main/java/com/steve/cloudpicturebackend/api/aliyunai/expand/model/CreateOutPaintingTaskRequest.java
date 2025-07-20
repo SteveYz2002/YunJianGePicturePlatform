@@ -1,4 +1,4 @@
-package com.steve.cloudpicturebackend.api.aliyunai.model;
+package com.steve.cloudpicturebackend.api.aliyunai.expand.model;
 
 import cn.hutool.core.annotation.Alias;
 import lombok.Data;

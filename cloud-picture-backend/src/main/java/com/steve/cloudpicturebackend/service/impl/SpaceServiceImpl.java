@@ -237,9 +237,83 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
 
     @Override
     public void checkSpaceAuth(User loginUser, Space space) {
-        if (!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有权限");
+        // 未登录，不能操作空间
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        // 空间不存在
+        ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
+        // 管理员可以操作任意空间
+        if (userService.isAdmin(loginUser)) {
+            return;
         }
+        // 私有空间只能创建者自己操作
+        if (SpaceTypeEnum.PRIVATE.getValue() == space.getSpaceType()) {
+            ThrowUtils.throwIf(!loginUser.getId().equals(space.getUserId()), ErrorCode.NO_AUTH_ERROR, "无权限操作该空间");
+            return;
+        }
+        // 团队空间，需要校验是否是团队空间的成员
+        if (SpaceTypeEnum.TEAM.getValue() == space.getSpaceType()) {
+            // 查询团队成员
+            boolean exists = spaceUserService.lambdaQuery()
+                    .eq(SpaceUser::getSpaceId, space.getId())
+                    .eq(SpaceUser::getUserId, loginUser.getId())
+                    .exists();
+            ThrowUtils.throwIf(!exists, ErrorCode.NO_AUTH_ERROR, "无权限操作该空间");
+        }
+    }
+
+    /**
+     * 根据用户ID获取该用户的空间列表（VO）
+     *
+     * @param userId 用户ID
+     * @return 该用户的空间列表
+     */
+    @Override
+    public List<SpaceVO> listSpaceVOByUserId(Long userId) {
+        // 校验参数
+        ThrowUtils.throwIf(userId == null || userId <= 0, ErrorCode.PARAMS_ERROR);
+        
+        // 获取该用户创建的私有空间
+        List<Space> privateSpaces = this.lambdaQuery()
+                .eq(Space::getUserId, userId)
+                .eq(Space::getSpaceType, SpaceTypeEnum.PRIVATE.getValue())
+                .list();
+        
+        // 获取该用户所在的团队空间
+        List<SpaceUser> spaceUsers = spaceUserService.lambdaQuery()
+                .eq(SpaceUser::getUserId, userId)
+                .list();
+        
+        Set<Long> teamSpaceIds = spaceUsers.stream()
+                .map(SpaceUser::getSpaceId)
+                .collect(Collectors.toSet());
+        
+        List<Space> teamSpaces = new ArrayList<>();
+        if (!teamSpaceIds.isEmpty()) {
+            teamSpaces = this.lambdaQuery()
+                    .in(Space::getId, teamSpaceIds)
+                    .eq(Space::getSpaceType, SpaceTypeEnum.TEAM.getValue())
+                    .list();
+        }
+        
+        // 合并两种空间并转换为VO
+        List<Space> allSpaces = new ArrayList<>();
+        allSpaces.addAll(privateSpaces);
+        allSpaces.addAll(teamSpaces);
+        
+        // 转换为VO对象
+        List<SpaceVO> spaceVOList = allSpaces.stream()
+                .map(space -> {
+                    SpaceVO spaceVO = SpaceVO.objToVo(space);
+                    // 获取空间拥有者信息
+                    User owner = userService.getById(space.getUserId());
+                    if (owner != null) {
+                        spaceVO.setUser(userService.getUserVO(owner));
+                    }
+                    return spaceVO;
+                })
+                .collect(Collectors.toList());
+        
+        return spaceVOList;
     }
 }
 

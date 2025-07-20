@@ -1,6 +1,6 @@
 package com.steve.cloudpicturebackend.model.dto.picture;
 
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskRequest;
 import lombok.Data;
 
 import java.io.Serializable;

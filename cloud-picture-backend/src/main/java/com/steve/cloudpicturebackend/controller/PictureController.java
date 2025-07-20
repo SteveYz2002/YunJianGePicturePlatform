@@ -1,6 +1,5 @@
 package com.steve.cloudpicturebackend.controller;
 
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -8,9 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.steve.cloudpicturebackend.annotation.AuthCheck;
-import com.steve.cloudpicturebackend.api.aliyunai.AliYunAiApi;
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.steve.cloudpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.ExpandAliYunAiApi;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.GetOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.TxtToImgAliYunAiApi;
 import com.steve.cloudpicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.steve.cloudpicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.steve.cloudpicturebackend.common.BaseResponse;
@@ -41,6 +41,12 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.context.ApplicationContext;
+
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.CreateTextToImageTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.GetTextToImageTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.SaveGeneratedImageRequest;
+
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -76,7 +82,10 @@ public class PictureController {
     private SpaceUserAuthManager spaceUserAuthManager;
 
     @Resource
-    private AliYunAiApi aliYunAiApi;
+    private ExpandAliYunAiApi expandAliYunAiApi;
+
+    @Resource
+    private ApplicationContext applicationContext;
 
     // 本地缓存
     private final Cache<String, String> LOCAL_CACHE =
@@ -439,7 +448,7 @@ public class PictureController {
     @GetMapping("/out_painting/get_task")
     public BaseResponse<GetOutPaintingTaskResponse> getPictureOutPaintingTask(String taskId) {
         ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
-        GetOutPaintingTaskResponse task = aliYunAiApi.getOutPaintingTask(taskId);
+        GetOutPaintingTaskResponse task = expandAliYunAiApi.getOutPaintingTask(taskId);
         return ResultUtils.success(task);
     }
 
@@ -497,6 +506,56 @@ public class PictureController {
         User loginUser = userService.getLoginUser(request);
         pictureService.unlikePicture(pictureLikeOrUnlikeRequest.getPictureId(), loginUser);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 创建文生图任务
+     */
+    @PostMapping("/text_to_image/create_task")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_EDIT)
+    public BaseResponse<CreateTextToImageTaskResponse> createPictureTextToImageTask(@RequestBody CreatePictureTextToImageTaskRequest createPictureTextToImageTaskRequest,
+                                                                                   HttpServletRequest request) {
+        if (createPictureTextToImageTaskRequest == null || StrUtil.isBlank(createPictureTextToImageTaskRequest.getPrompt())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        CreateTextToImageTaskResponse response = pictureService.createPictureTextToImageTask(createPictureTextToImageTaskRequest, loginUser);
+        return ResultUtils.success(response);
+    }
+
+    /**
+     * 查询文生图任务
+     */
+    @GetMapping("/text_to_image/get_task")
+    public BaseResponse<GetTextToImageTaskResponse> getPictureTextToImageTask(String taskId) {
+        ThrowUtils.throwIf(StrUtil.isBlank(taskId), ErrorCode.PARAMS_ERROR);
+        TxtToImgAliYunAiApi txtAliYunAiApi =
+            applicationContext.getBean(TxtToImgAliYunAiApi.class);
+        GetTextToImageTaskResponse task = txtAliYunAiApi.getTextToImageTask(taskId);
+        return ResultUtils.success(task);
+    }
+
+    /**
+     * 保存生成的图片
+     */
+    @PostMapping("/text_to_image/save_image")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_EDIT)
+    public BaseResponse<PictureVO> saveGeneratedImage(@RequestBody SaveGeneratedImageRequest saveGeneratedImageRequest,
+                                                      HttpServletRequest request) {
+        if (saveGeneratedImageRequest == null || StrUtil.isBlank(saveGeneratedImageRequest.getImageUrl())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        
+        // 使用已有的上传图片方法
+        PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
+        pictureUploadRequest.setUrl(saveGeneratedImageRequest.getImageUrl());
+        pictureUploadRequest.setPicName("AI生成图片_" + saveGeneratedImageRequest.getTaskId());
+        pictureUploadRequest.setSpaceId(saveGeneratedImageRequest.getSpaceId());
+        
+        // 调用已有的上传图片方法
+        PictureVO pictureVO = pictureService.uploadPicture(pictureUploadRequest.getUrl(), pictureUploadRequest, loginUser);
+        return ResultUtils.success(pictureVO);
     }
 
 

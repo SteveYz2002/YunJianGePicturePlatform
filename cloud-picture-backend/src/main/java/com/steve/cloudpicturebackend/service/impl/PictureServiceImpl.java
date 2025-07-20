@@ -9,9 +9,12 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.steve.cloudpicturebackend.api.aliyunai.AliYunAiApi;
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.ExpandAliYunAiApi;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskRequest;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.TxtToImgAliYunAiApi;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.CreateTextToImageTaskRequest;
+import com.steve.cloudpicturebackend.api.aliyunai.txt2img.model.CreateTextToImageTaskResponse;
 import com.steve.cloudpicturebackend.exception.BusinessException;
 import com.steve.cloudpicturebackend.exception.ErrorCode;
 import com.steve.cloudpicturebackend.exception.ThrowUtils;
@@ -42,6 +45,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -83,10 +87,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private TransactionTemplate transactionTemplate;
 
     @Resource
-    private AliYunAiApi aliYunAiApi;
+    private ExpandAliYunAiApi expandAliYunAiApi;
 
     @Resource
     private PictureLikeService pictureLikeService;
+
+    @Resource
+    private ApplicationContext applicationContext;
 
     @Override
     public void validPicture(Picture picture) {
@@ -804,7 +811,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         createOutPaintingTaskRequest.setInput(input);
         createOutPaintingTaskRequest.setParameters(createPictureOutPaintingTaskRequest.getParameters());
         // 创建任务
-        return aliYunAiApi.createOutPaintingTask(createOutPaintingTaskRequest);
+        return expandAliYunAiApi.createOutPaintingTask(createOutPaintingTaskRequest);
     }
 
     /**
@@ -961,6 +968,52 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 移除域名部分，获取key
         String host = "https://stevecp1-1364043722.cos.ap-beijing.myqcloud.com/";
         return url.replace(host, "");
+    }
+
+    @Override
+    public CreateTextToImageTaskResponse createPictureTextToImageTask(CreatePictureTextToImageTaskRequest createPictureTextToImageTaskRequest, User loginUser) {
+        if (createPictureTextToImageTaskRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
+        }
+
+        // 校验用户权限
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR, "未登录");
+
+        // 创建文生图任务
+        CreateTextToImageTaskRequest createTextToImageTaskRequest = new CreateTextToImageTaskRequest();
+        CreateTextToImageTaskRequest.Input input = new CreateTextToImageTaskRequest.Input();
+        
+        // 设置提示词
+        String prompt = createPictureTextToImageTaskRequest.getPrompt();
+        ThrowUtils.throwIf(StrUtil.isBlank(prompt), ErrorCode.PARAMS_ERROR, "提示词不能为空");
+        input.setPrompt(prompt);
+        
+        // 设置负面提示词（如果有）
+        String negativePrompt = createPictureTextToImageTaskRequest.getNegativePrompt();
+        if (StrUtil.isNotBlank(negativePrompt)) {
+            input.setNegativePrompt(negativePrompt);
+        }
+        
+        createTextToImageTaskRequest.setInput(input);
+        
+        // 设置参数
+        CreateTextToImageTaskRequest.Parameters parameters = createPictureTextToImageTaskRequest.getParameters();
+        if (parameters == null) {
+            parameters = new CreateTextToImageTaskRequest.Parameters();
+            // 设置默认参数
+            parameters.setSize("1024*1024");
+            parameters.setSteps(30);
+            parameters.setGuidanceScale(10);
+            parameters.setN(1);
+        }
+        // 设置不加水印
+        parameters.setAddWatermark(false);
+        createTextToImageTaskRequest.setParameters(parameters);
+        
+        // 调用阿里云AI接口创建任务
+        TxtToImgAliYunAiApi aliYunAiApi =
+            applicationContext.getBean(TxtToImgAliYunAiApi.class);
+        return aliYunAiApi.createTextToImageTask(createTextToImageTaskRequest);
     }
 
 }

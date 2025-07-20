@@ -1,4 +1,4 @@
-package com.steve.cloudpicturebackend.api.aliyunai.model;
+package com.steve.cloudpicturebackend.api.aliyunai.expand.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

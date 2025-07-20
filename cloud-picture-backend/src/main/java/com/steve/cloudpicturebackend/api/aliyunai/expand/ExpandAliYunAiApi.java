@@ -1,12 +1,12 @@
-package com.steve.cloudpicturebackend.api.aliyunai;
+package com.steve.cloudpicturebackend.api.aliyunai.expand;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskRequest;
-import com.steve.cloudpicturebackend.api.aliyunai.model.CreateOutPaintingTaskResponse;
-import com.steve.cloudpicturebackend.api.aliyunai.model.GetOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskRequest;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.CreateOutPaintingTaskResponse;
+import com.steve.cloudpicturebackend.api.aliyunai.expand.model.GetOutPaintingTaskResponse;
 import com.steve.cloudpicturebackend.exception.BusinessException;
 import com.steve.cloudpicturebackend.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Component
-public class AliYunAiApi {
+public class ExpandAliYunAiApi {
 
     // 读取配置文件
     @Value("${aliYunAi.apiKey}")
