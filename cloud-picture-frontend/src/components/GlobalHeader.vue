@@ -7,7 +7,7 @@
           <img src="../assets/logo.png" alt="logo" class="logo" />
         </div>
         <div class="brand-info">
-          <h1 class="brand-name">云笺阁</h1>
+          <h1 class="brand-name gradient-text">云笺阁</h1>
           <div class="brand-slogan">企业级云图库平台</div>
         </div>
       </router-link>
@@ -28,7 +28,7 @@
       <div class="user-section">
         <div v-if="loginUserStore.loginUser.id" class="user-logged-in">
           <a-dropdown placement="bottomRight">
-            <div class="user-profile">
+            <div class="user-profile glass-effect">
               <a-avatar
                 :src="loginUserStore.loginUser.userAvatar"
                 class="user-avatar"
@@ -68,7 +68,7 @@
         </div>
         <div v-else class="user-not-logged-in">
           <a-button type="primary" class="login-button" href="/user/login">登录</a-button>
-          <a-button class="register-button" href="/user/register">注册</a-button>
+          <a-button class="register-button tech-border" href="/user/register">注册</a-button>
         </div>
       </div>
     </div>
@@ -186,12 +186,18 @@ const doLogout = async () => {
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: none; /* 移除阴影效果 */
-  transition: all 0.3s ease;
+  backdrop-filter: blur(var(--blur-effect));
+  -webkit-backdrop-filter: blur(var(--blur-effect));
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
   width: 100%; /* 确保宽度是100% */
+  border-bottom: 1px solid var(--border-color);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.global-header:hover {
+  box-shadow: var(--shadow-md);
 }
 
 /* 整体布局调整 */
@@ -202,6 +208,7 @@ const doLogout = async () => {
   display: flex;
   align-items: center;
   padding: 0 20px; /* 左右内边距 */
+  max-width: 1400px; /* 增加最大宽度限制 */
 }
 
 /* 品牌部分 */
@@ -209,7 +216,7 @@ const doLogout = async () => {
   display: flex;
   align-items: center;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: transform var(--transition-normal);
   height: 64px;
   width: 180px; /* 固定宽度 */
   flex: 0 0 auto; /* 不伸缩，保持固定大小 */
@@ -230,8 +237,12 @@ const doLogout = async () => {
   height: 38px;
   width: auto; /* 保持宽高比 */
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-normal);
   flex-shrink: 0; /* 防止缩小 */
+}
+
+.brand-section:hover .logo {
+  transform: rotate(5deg);
 }
 
 .brand-info {
@@ -247,10 +258,6 @@ const doLogout = async () => {
 .brand-name {
   font-size: 20px;
   font-weight: 600;
-  background: linear-gradient(45deg, #2196F3, #673AB7);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
   margin: 0 0 4px 0;
   padding: 0;
   letter-spacing: 0.5px;
@@ -260,7 +267,7 @@ const doLogout = async () => {
 
 .brand-slogan {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1;
   flex-shrink: 0; /* 防止缩小 */
@@ -268,52 +275,80 @@ const doLogout = async () => {
 
 /* 导航部分 */
 .nav-section {
-  flex: 1; /* 使用1而不是3，让其自然伸缩 */
+  flex: 1; 
   display: flex;
   justify-content: center;
   overflow: visible;
-  padding: 0; /* 移除内边距 */
-  margin: 0 20px; /* 使用外边距代替内边距 */
+  padding: 0; 
+  margin: 0 20px; 
 }
 
 .main-menu {
   background: transparent;
   border-bottom: none;
   line-height: 64px;
-  width: 100%; /* 使用100%宽度 */
-  min-width: auto; /* 移除最小宽度限制 */
+  width: 100%; 
+  min-width: auto; 
 }
 
 /* 确保菜单项不会过早折叠 */
 .global-header :deep(.ant-menu) {
-  flex-wrap: wrap; /* 允许菜单项换行 */
+  flex-wrap: wrap; 
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
 .global-header :deep(.ant-menu-overflow) {
-  justify-content: center; /* 居中显示菜单项 */
+  justify-content: center; 
   width: 100%;
 }
 
 .global-header :deep(.ant-menu-overflow-item) {
-  flex: none !important; /* 不允许菜单项伸缩，保持原始大小 */
-  text-align: center; /* 文本居中 */
+  flex: none !important; 
+  text-align: center; 
   padding: 0 !important;
-  margin: 0 10px !important; /* 恢复菜单项间距 */
+  margin: 0 10px !important;
+}
+
+/* 美化菜单项样式 */
+.global-header :deep(.ant-menu-horizontal > .ant-menu-item),
+.global-header :deep(.ant-menu-horizontal > .ant-menu-submenu) {
+  padding: 0 15px; /* 恢复内边距 */
+  margin: 0 5px; /* 添加适当的外边距 */
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-primary);
+  border-bottom: 2px solid transparent;
+  flex: none; /* 不伸缩，保持原始大小 */
+  text-align: center; /* 文本居中 */
+  transition: all var(--transition-fast);
+}
+
+/* 未选中菜单项的悬停效果 */
+.global-header :deep(.ant-menu-horizontal > .ant-menu-item:not(.ant-menu-item-selected):hover),
+.global-header :deep(.ant-menu-horizontal > .ant-menu-submenu:not(.ant-menu-submenu-selected):hover) {
+  color: var(--primary-color);
+  border-color: var(--primary-light);
+}
+
+/* 已选中菜单项 */
+.global-header :deep(.ant-menu-horizontal > .ant-menu-item-selected) {
+  color: var(--primary-color);
+  font-weight: 600;
+  border-color: var(--primary-color);
 }
 
 /* 美化折叠子菜单样式，确保它可以正确打开 */
 .global-header :deep(.ant-menu-submenu-popup) {
-  z-index: 1050 !important; /* 提高层级，确保菜单能显示在其他元素之上 */
+  z-index: 1050 !important; 
 }
 
 .global-header :deep(.ant-menu-submenu-popup .ant-menu) {
   background-color: white;
-  border-radius: 8px;
+  border-radius: var(--border-radius-lg);
   padding: 4px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-md);
   min-width: 120px;
 }
 
@@ -322,32 +357,25 @@ const doLogout = async () => {
   height: auto;
   line-height: 1.5;
   margin: 4px 0;
-  border-radius: 4px;
-  color: #333;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
 }
 
 .global-header :deep(.ant-menu-submenu-popup .ant-menu-item:hover) {
-  background-color: rgba(24, 144, 255, 0.06);
-  color: #1890ff;
-}
-
-/* 保持其他样式不变 */
-
-/* 自适应菜单样式 */
-.global-header :deep(.ant-menu-horizontal) {
-  border-bottom: none;
+  background-color: rgba(37, 100, 235, 0.06);
+  color: var(--primary-color);
 }
 
 /* 美化菜单折叠按钮样式 */
 .global-header :deep(.ant-menu-horizontal-overflow-item-rest .anticon) {
   font-size: 18px;
-  color: #1890ff;
-  transition: transform 0.3s;
+  color: var(--primary-color);
+  transition: transform var(--transition-normal);
 }
 
 .global-header :deep(.ant-menu-horizontal-overflow-item-rest:hover .anticon) {
   transform: rotate(90deg);
-  color: #0c6bc9;
+  color: var(--primary-dark);
 }
 
 /* 美化折叠按钮的背景和样式 */
@@ -358,43 +386,16 @@ const doLogout = async () => {
 
 /* 美化下拉菜单样式 */
 .global-header :deep(.ant-menu-horizontal-overflow-popup .ant-menu) {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--border-radius-lg);
   padding: 5px;
-}
-
-/* 美化折叠子菜单样式 */
-.global-header :deep(.ant-menu-submenu-popup) {
-  min-width: 120px;
-}
-
-.global-header :deep(.ant-menu-submenu-popup .ant-menu-item) {
-  padding: 10px 16px;
-  margin: 2px 0;
-  border-radius: 4px;
-}
-
-.global-header :deep(.ant-menu-submenu-popup .ant-menu-vertical) {
-  border-radius: 8px;
-  padding: 4px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-.global-header :deep(.ant-menu-submenu-popup .ant-menu-item:hover) {
-  background-color: rgba(24, 144, 255, 0.06);
-  color: #1890ff;
-}
-
-.global-header :deep(.ant-menu-submenu-popup .ant-menu-item-selected) {
-  background-color: rgba(24, 144, 255, 0.1);
-  color: #1890ff;
 }
 
 /* 用户部分 */
 .user-section {
   width: auto;
-  min-width: 110px; /* 最小宽度 */
-  flex: 0 0 auto; /* 不伸缩，保持固定大小 */
+  min-width: 110px; 
+  flex: 0 0 auto; 
   display: flex;
   justify-content: flex-end;
 }
@@ -406,27 +407,27 @@ const doLogout = async () => {
 .user-profile {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
-  border-radius: 40px;
-  transition: all 0.3s ease;
-  background-color: rgba(240, 242, 245, 0.5);
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  transition: all var(--transition-normal);
 }
 
 .user-profile:hover {
-  background-color: rgba(240, 242, 245, 0.9);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
-  border: 2px solid rgba(24, 144, 255, 0.2);
+  border: 2px solid rgba(37, 100, 235, 0.2);
 }
 
 .user-name {
   margin: 0 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -435,26 +436,28 @@ const doLogout = async () => {
 
 .dropdown-icon {
   font-size: 12px;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 /* 用户菜单 */
 .global-header :deep(.ant-dropdown-menu) {
-  border-radius: 8px;
+  border-radius: var(--border-radius-lg);
   padding: 4px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.2s ease;
 }
 
 .global-header :deep(.ant-dropdown-menu-item) {
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   margin: 2px 0;
+  transition: all var(--transition-fast);
 }
 
 .global-header :deep(.menu-link) {
   display: flex;
   align-items: center;
-  color: #333;
+  color: var(--text-primary);
   text-decoration: none;
 }
 
@@ -467,15 +470,16 @@ const doLogout = async () => {
 }
 
 .global-header :deep(.logout) {
-  color: #ff4d4f;
+  color: var(--danger-color);
 }
 
 .global-header :deep(.ant-dropdown-menu-item:hover) {
-  background-color: rgba(24, 144, 255, 0.06);
+  background-color: rgba(37, 100, 235, 0.06);
+  transform: translateX(2px);
 }
 
 .global-header :deep(.logout:hover) {
-  background-color: rgba(255, 77, 79, 0.06);
+  background-color: rgba(239, 68, 68, 0.06);
 }
 
 /* 未登录用户 */
@@ -485,49 +489,35 @@ const doLogout = async () => {
 }
 
 .login-button {
-  background: linear-gradient(45deg, #1890ff, #36cfc9);
-  border: none;
   font-weight: 500;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal);
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
 }
 
 .register-button {
-  color: #1890ff;
+  color: var(--primary-color);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal);
 }
 
-/* 菜单项样式 */
-.global-header :deep(.ant-menu-horizontal > .ant-menu-item),
-.global-header :deep(.ant-menu-horizontal > .ant-menu-submenu) {
-  padding: 0 15px; /* 恢复内边距 */
-  margin: 0 5px; /* 添加适当的外边距 */
-  font-weight: 500;
-  font-size: 15px;
-  color: #333;
-  border-bottom: 2px solid transparent;
-  flex: none; /* 不伸缩，保持原始大小 */
-  text-align: center; /* 文本居中 */
-}
-
-/* 未选中菜单项的悬停效果 */
-.global-header :deep(.ant-menu-horizontal > .ant-menu-item:not(.ant-menu-item-selected):hover),
-.global-header :deep(.ant-menu-horizontal > .ant-menu-submenu:not(.ant-menu-submenu-selected):hover) {
-  color: #1890ff;
-}
-
-/* 已选中菜单项的悬停效果 - 不改变底部边框 */
-
-.global-header :deep(.ant-menu-horizontal > .ant-menu-item-selected) {
-  color: #1890ff;
-  font-weight: 600;
+.register-button:hover {
+  transform: translateY(-2px);
+  background-color: rgba(37, 100, 235, 0.04);
+  color: var(--primary-dark);
 }
 
 /* 响应式调整 */
 @media (min-width: 1200px) {
   .header-content {
-    padding: 0 40px; /* 在大屏幕上增加内边距 */
+    padding: 0 40px; 
   }
   
   .nav-section {
-    margin: 0 40px; /* 在大屏幕上增加外边距 */
+    margin: 0 40px; 
   }
   
   .global-header :deep(.ant-menu-horizontal > .ant-menu-item),
@@ -539,17 +529,17 @@ const doLogout = async () => {
 
 @media (max-width: 992px) {
   .brand-section {
-    width: 150px; /* 减小品牌区域宽度 */
+    width: 150px; 
   }
   
   .nav-section {
-    margin: 0 10px; /* 减小导航区域外边距 */
+    margin: 0 10px; 
   }
   
   .global-header :deep(.ant-menu-horizontal > .ant-menu-item),
   .global-header :deep(.ant-menu-horizontal > .ant-menu-submenu) {
-    padding: 0 10px; /* 减小内边距 */
-    margin: 0 3px; /* 减小外边距 */
+    padding: 0 10px; 
+    margin: 0 3px; 
   }
 }
 

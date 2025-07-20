@@ -248,12 +248,13 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 /* 侧边栏主容器 */
 #globalSider .sider {
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: var(--bg-light);
+  box-shadow: var(--shadow-md);
   height: 100%;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
   position: relative; /* 为绝对定位的子元素提供参考 */
+  border-right: 1px solid var(--border-color);
 }
 
 /* 内部容器 */
@@ -269,12 +270,19 @@ const doMenuClick = ({ key }: { key: string }) => {
   padding: 24px 16px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(to right, rgba(37, 100, 235, 0.03), rgba(6, 182, 212, 0.03));
+  animation: fadeIn 0.5s ease;
 }
 
 .user-avatar {
-  border: 2px solid rgba(24, 144, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(37, 100, 235, 0.3);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-normal);
+}
+
+.user-profile:hover .user-avatar {
+  transform: scale(1.05) rotate(5deg);
 }
 
 .user-info {
@@ -284,8 +292,8 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 .user-name {
   font-size: 16px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--text-primary);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -295,13 +303,17 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 .user-role {
   font-size: 12px;
-  color: #999;
+  color: var(--text-secondary);
+  background: rgba(37, 100, 235, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+  display: inline-block;
 }
 
 .divider {
   height: 1px;
   margin: 0;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--border-color);
 }
 
 /* 主要内容区域 - 可滚动 */
@@ -325,12 +337,17 @@ const doMenuClick = ({ key }: { key: string }) => {
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
+  border-radius: var(--border-radius-md);
+  background: var(--primary-gradient);
   color: white;
   font-size: 12px;
   font-weight: 500;
   margin-right: 10px;
+  transition: transform var(--transition-normal);
+}
+
+:deep(.ant-menu-item:hover .team-space-icon) {
+  transform: scale(1.1);
 }
 
 /* 菜单样式 */
@@ -341,25 +358,47 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 #globalSider :deep(.ant-menu-item) {
   margin: 4px 16px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   height: 46px;
   line-height: 46px;
   padding-left: 16px !important;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
   box-shadow: none !important; /* 确保所有菜单项没有阴影 */
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+#globalSider :deep(.ant-menu-item::after) {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: linear-gradient(90deg, 
+      var(--primary-light) 0%, 
+      var(--accent-light) 100%);
+  opacity: 0.1;
+  transition: height var(--transition-fast);
+  z-index: -1;
 }
 
 #globalSider :deep(.ant-menu-item:hover) {
-  background-color: rgba(24, 144, 255, 0.06);
-  color: #1890ff;
-  box-shadow: none !important; /* 确保悬停时没有阴影 */
+  background-color: rgba(37, 100, 235, 0.05);
+  color: var(--primary-color);
+  transform: translateX(3px);
+}
+
+#globalSider :deep(.ant-menu-item:hover::after) {
+  height: 100%;
 }
 
 /* 选中菜单项样式 - 简化效果 */
 #globalSider :deep(.ant-menu-inline .ant-menu-item-selected),
 #globalSider :deep(.ant-menu-item.ant-menu-item-selected) {
-  background: linear-gradient(90deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.2)) !important;
-  color: #1890ff !important;
+  background: linear-gradient(90deg, rgba(37, 100, 235, 0.1), rgba(37, 100, 235, 0.15)) !important;
+  color: var(--primary-color) !important;
   font-weight: 500;
   position: relative;
   box-shadow: none !important; /* 强制移除所有阴影 */
@@ -373,26 +412,33 @@ const doMenuClick = ({ key }: { key: string }) => {
   top: 0;
   height: 100%;
   width: 4px;
-  background: #1890ff;
-  border-radius: 0 4px 4px 0;
+  background: var(--primary-gradient);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  box-shadow: 0 0 10px rgba(37, 100, 235, 0.4);
 }
 
 #globalSider :deep(.ant-menu-item .anticon) {
   font-size: 18px;
   margin-right: 12px;
+  transition: transform var(--transition-normal);
+}
+
+#globalSider :deep(.ant-menu-item:hover .anticon) {
+  transform: translateX(2px);
 }
 
 #globalSider :deep(.ant-menu-item-selected .anticon) {
-  color: #1890ff;
+  color: var(--primary-color);
 }
 
 #globalSider :deep(.ant-menu-item-group-title) {
   padding: 16px 24px 8px;
-  color: #8c8c8c;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  background: linear-gradient(to right, rgba(37, 100, 235, 0.02), rgba(6, 182, 212, 0.02));
 }
 
 #globalSider :deep(.ant-menu-item-group-list .ant-menu-item) {
@@ -405,36 +451,48 @@ const doMenuClick = ({ key }: { key: string }) => {
   padding: 16px;
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  background-color: #ffffff;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-light);
+  background: linear-gradient(to bottom, rgba(37, 100, 235, 0.02), rgba(6, 182, 212, 0.05));
   position: absolute;
-  bottom: 80px; /* 向上移动，避免被底部元素遮挡 */
+  bottom: 10px;
   left: 0;
   right: 0;
   z-index: 10;
-  bottom: 10px;
-  box-shadow: none; /* 移除底部区域的阴影 */
+  box-shadow: none;
 }
 
 .quick-action-btn {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  border-radius: var(--border-radius-full);
+  width: 40px;
+  height: 40px;
 }
 
 .quick-action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .create-btn {
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
+  background: var(--primary-gradient);
   border: none;
+}
+
+.create-btn:hover {
+  filter: brightness(1.1);
 }
 
 .settings-btn {
   background: #f0f0f0;
   border: none;
-  color: #666;
+  color: var(--text-secondary);
+}
+
+.settings-btn:hover {
+  background: #e6e6e6;
+  color: var(--text-primary);
 }
 
 /* 折叠按钮 */
@@ -442,16 +500,24 @@ const doMenuClick = ({ key }: { key: string }) => {
   position: absolute;
   bottom: 70px;
   left: 240px;
-  width: 32px;
-  height: 32px;
-  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
   text-align: center;
-  border-radius: 0 4px 4px 0;
-  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #1890ff, #36cfc9);
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  box-shadow: var(--shadow-md);
+  background: var(--primary-gradient);
   border: none;
-  transition: all 0.3s;
+  transition: all var(--transition-normal);
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trigger-button:hover {
+  width: 32px;
+  box-shadow: var(--shadow-lg);
 }
 
 .trigger-collapsed {

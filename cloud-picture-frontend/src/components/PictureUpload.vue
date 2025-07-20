@@ -5,12 +5,18 @@
       :show-upload-list="false"
       :custom-request="handleUpload"
       :before-upload="beforeUpload"
+      class="upload-container"
     >
-      <img v-if="picture?.url" :src="picture?.url" alt="avatar" />
-      <div v-else>
-        <loading-outlined v-if="loading"></loading-outlined>
-        <plus-outlined v-else></plus-outlined>
-        <div class="ant-upload-text">点击或拖拽上传图片</div>
+      <div class="upload-content">
+        <img v-if="picture?.url" :src="picture?.url" alt="avatar" class="uploaded-image" />
+        <div v-else class="upload-placeholder">
+          <div class="upload-icon-container">
+            <loading-outlined v-if="loading" class="loading-icon spin" />
+            <plus-outlined v-else class="upload-icon" />
+          </div>
+          <div class="upload-text">点击或拖拽上传图片</div>
+          <div class="upload-hint">支持 JPG/PNG 格式，小于 2MB</div>
+        </div>
       </div>
     </a-upload>
   </div>
@@ -75,25 +81,113 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
 }
 </script>
 <style scoped>
+.picture-upload {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.upload-container {
+  width: 100%;
+  cursor: pointer;
+}
+
 .picture-upload :deep(.ant-upload) {
   width: 100% !important;
-  height: 100% !important;
-  min-width: 152px;
-  min-height: 152px;
+  height: auto !important;
+  min-width: 200px;
+  min-height: 200px;
+  background-color: rgba(37, 100, 235, 0.02);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-lg);
+  transition: all var(--transition-normal);
+  overflow: hidden;
 }
 
-.picture-upload img {
+.picture-upload :deep(.ant-upload:hover) {
+  border-color: var(--primary-color);
+  background-color: rgba(37, 100, 235, 0.05);
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  padding: 20px;
+}
+
+.uploaded-image {
   max-width: 100%;
   max-height: 480px;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-normal);
 }
 
-.ant-upload-select-picture-card i {
-  font-size: 32px;
-  color: #999;
+.uploaded-image:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
 }
 
-.ant-upload-select-picture-card .ant-upload-text {
-  margin-top: 8px;
-  color: #666;
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 40px 20px;
+}
+
+.upload-icon-container {
+  height: 64px;
+  width: 64px;
+  border-radius: 50%;
+  background: rgba(37, 100, 235, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  transition: all var(--transition-normal);
+}
+
+.upload-container:hover .upload-icon-container {
+  transform: translateY(-5px);
+  background: rgba(37, 100, 235, 0.1);
+}
+
+.upload-icon {
+  font-size: 28px;
+  color: var(--primary-color);
+}
+
+.loading-icon {
+  font-size: 24px;
+  color: var(--primary-color);
+}
+
+.spin {
+  animation: spin 1.2s infinite linear;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.upload-text {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.upload-hint {
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 </style>

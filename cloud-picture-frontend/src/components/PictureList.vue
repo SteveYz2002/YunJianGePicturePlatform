@@ -208,6 +208,11 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
 </script>
 
 <style scoped>
+.picture-list {
+  width: 100%;
+  animation: fadeIn 0.5s ease-out;
+}
+
 .ellipsis-text {
   /* 不换行 */
   white-space: nowrap;
@@ -219,15 +224,67 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   max-width: 100%;
   margin-bottom: 10px;
   font-size: 16px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.picture-card :deep(.ant-card-body) {
+.picture-list :deep(.ant-list-item) {
+  transition: transform var(--transition-normal);
+}
+
+.picture-list :deep(.ant-list-item:hover) {
+  transform: translateY(-6px);
+  z-index: 2;
+}
+
+.picture-list :deep(.ant-card) {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  border: none;
+}
+
+.picture-list :deep(.ant-card:hover) {
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.01);
+}
+
+.picture-list :deep(.ant-card-body) {
   padding: 0;
+}
+
+.picture-list :deep(.ant-card-actions) {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.97), rgba(250, 250, 250, 0.97));
+  border-top: 1px solid var(--border-color);
+  padding: 8px 0;
+}
+
+.picture-list :deep(.ant-card-actions > li) {
+  margin: 0;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.picture-list :deep(.ant-card-actions > li:hover) {
+  color: var(--primary-color);
+  transform: translateY(-2px) scale(1.05);
 }
 
 .image-container {
   position: relative;
   overflow: hidden;
+}
+
+.image-container img {
+  transition: transform 0.7s var(--transition-normal);
+  display: block;
+  width: 100%;
+}
+
+.image-container:hover img {
+  transform: scale(1.05);
 }
 
 .image-details {
@@ -237,27 +294,72 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   right: 0;
   bottom: 0;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(to bottom, 
+    rgba(0, 0, 0, 0.1), 
+    rgba(0, 0, 0, 0.8)
+  );
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  padding: 10px;
+  transition: opacity var(--transition-normal);
+  padding: 15px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .image-container:hover .image-details {
   opacity: 1;
+  animation: slideUp 0.3s ease forwards;
 }
 
-.image-details h4 {
-  margin-bottom: 10px;
-  font-size: 16px;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.image-details .ant-tag {
+/* 自定义标签样式 */
+.image-details :deep(.ant-tag) {
   margin: 2px;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.image-details :deep(.ant-tag:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 操作图标样式 */
+.picture-list :deep(.anticon) {
+  font-size: 16px;
+  transition: transform var(--transition-fast);
+}
+
+.picture-list :deep(.anticon:hover) {
+  transform: scale(1.2);
+}
+
+/* 点赞和分享数量样式 */
+.picture-list :deep(svg) {
+  margin-right: 2px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .picture-list :deep(.ant-list-item) {
+    padding: 8px 4px !important;
+  }
+
+  .image-container img {
+    height: 180px !important; /* 小屏幕时减小图片高度 */
+  }
 }
 </style>

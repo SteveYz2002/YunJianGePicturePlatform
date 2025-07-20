@@ -350,39 +350,47 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 200px;
+  animation: fadeIn 0.5s ease;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
+  padding: 40px;
+  background: linear-gradient(135deg, rgba(37, 100, 235, 0.02), rgba(6, 182, 212, 0.03));
+  border-radius: var(--border-radius-lg);
+  min-height: 200px;
 }
 
 .waterfall-item {
   box-sizing: border-box;
-  padding: 7px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 8px;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  will-change: transform;
 }
 
 .waterfall-item:hover {
-  transform: translateY(-8px);
-  z-index: 1;
+  transform: translateY(-10px);
+  z-index: 5;
 }
 
 .image-container {
   position: relative;
   overflow: hidden;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  background-color: #fff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--bg-light);
   cursor: pointer;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow var(--transition-normal), transform var(--transition-normal);
   /* 保证图片底部没有空隙 */
   line-height: 0;
 }
 
 .waterfall-item:hover .image-container {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.01);
 }
 
 .waterfall-image {
@@ -390,7 +398,7 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   width: 100%;
   height: auto;
   max-height: 360px; /* 与脚本中保持一致 */
-  transition: transform 0.5s ease;
+  transition: transform 0.7s var(--transition-normal);
   object-fit: cover;
 }
 
@@ -405,20 +413,36 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   right: 0;
   bottom: 0;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(to bottom, 
+    rgba(0, 0, 0, 0.1), 
+    rgba(0, 0, 0, 0.8)
+  );
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--transition-normal);
   padding: 15px;
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .image-container:hover .image-details {
   opacity: 1;
+  animation: slideUp 0.3s ease forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ellipsis-text {
@@ -426,17 +450,27 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   text-overflow: ellipsis;
   max-width: 100%;
   margin-bottom: 16px;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .picture-actions {
   display: flex;
   justify-content: space-around;
-  padding: 10px;
-  background: #ffffff;
-  border-radius: 0 0 12px 12px;
+  padding: 12px;
+  background: var(--bg-light);
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+  transition: transform var(--transition-normal), background var(--transition-normal);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.waterfall-item:hover .picture-actions {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.97), rgba(240, 242, 245, 0.97));
 }
 
 .action-item {
@@ -445,12 +479,67 @@ const doLike = async (picture: API.PictureVO, e: Event) => {
   justify-content: center;
   cursor: pointer;
   padding: 6px 10px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-fast);
+  color: var(--text-secondary);
 }
 
 .action-item:hover {
-  background-color: #e6f7ff;
-  transform: translateY(-2px);
+  background-color: rgba(37, 100, 235, 0.1);
+  transform: translateY(-2px) scale(1.05);
+  color: var(--primary-color);
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+  position: relative;
+}
+
+.load-more-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, 
+      transparent, 
+      var(--border-color), 
+      transparent);
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.no-more-indicator {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  background: rgba(240, 242, 245, 0.6);
+  border-radius: var(--border-radius-full);
+}
+
+.load-more-button-wrapper {
+  transform: scale(1);
+  transition: transform var(--transition-normal);
+}
+
+.load-more-button-wrapper:hover {
+  transform: scale(1.05);
 }
 </style> 

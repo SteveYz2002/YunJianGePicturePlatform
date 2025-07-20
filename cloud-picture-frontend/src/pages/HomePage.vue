@@ -1,36 +1,58 @@
 <template>
   <div id="homePage" class="home-page" ref="homePageRef">
-    <!-- 标题区域 - 增强设计 -->
+    <!-- 标题区域 - 科技感增强 -->
     <div class="hero-container">
-      <div class="title-content">
-        <img src="../assets/logo.png" alt="网站图标" class="title-icon" />
-        <h1 class="artistic-title">云笺阁</h1>
-      </div>
-      <div class="subtitle">企业级云图库平台</div>
-      
-      <!-- 搜索框改进，增加视觉焦点 -->
-      <div class="search-bar-container">
-        <a-input-search
-          placeholder="从海量图片中搜索"
-          v-model:value="searchParams.searchText"
-          enter-button
-          size="large"
-          @search="doSearch"
-        >
-          <template #enterButton>
-            <a-button type="primary" size="large">
-              <template #icon><SearchOutlined /></template>
-              搜索
-            </a-button>
-          </template>
-        </a-input-search>
+      <div class="hero-backdrop"></div>
+      <div class="hero-content">
+        <div class="title-content">
+          <img src="../assets/logo.png" alt="网站图标" class="title-icon" />
+          <h1 class="artistic-title gradient-text">云笺阁</h1>
+        </div>
+        <div class="subtitle">企业级云图库平台</div>
+        
+        <!-- 改进的搜索框 -->
+        <div class="search-bar-container glass-effect">
+          <a-input-search
+            placeholder="从海量图片中搜索"
+            v-model:value="searchParams.searchText"
+            enter-button
+            size="large"
+            @search="doSearch"
+            class="search-input"
+          >
+            <template #enterButton>
+              <a-button type="primary" size="large" class="search-button">
+                <template #icon><SearchOutlined /></template>
+                搜索
+              </a-button>
+            </template>
+          </a-input-search>
+        </div>
+        
+        <!-- 添加可视化统计或引导 -->
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">精选图片</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-number">100+</div>
+            <div class="stat-label">专业分类</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-number">5K+</div>
+            <div class="stat-label">活跃用户</div>
+          </div>
+        </div>
       </div>
     </div>
     
     <!-- 内容区域 -->
     <div class="content-container" ref="contentRef">
       <!-- 筛选栏 - 改进样式 -->
-      <div class="filter-container">
+      <div class="filter-container glass-effect">
         <a-tabs v-model:activeKey="selectedCategory" @change="doSearch" class="category-tabs">
           <a-tab-pane key="all" tab="全部" />
           <a-tab-pane v-for="category in categoryList" :key="category" :tab="category" />
@@ -66,7 +88,7 @@
             没有更多内容了
           </div>
           <div v-else class="load-more-button-wrapper">
-            <a-button @click="loadMore" type="primary" ghost>加载更多</a-button>
+            <a-button @click="loadMore" type="primary" ghost class="load-more-button">加载更多</a-button>
           </div>
         </div>
       </div>
@@ -264,24 +286,56 @@ const router = useRouter()
 </script>
 
 <style scoped>
-#homePage {
-  min-height: 100%; /* 填充整个可用空间 */
-  background-color: #f5f7fa;
-  padding-bottom: 0;
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
+.home-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-light);
 }
 
-/* 标题英雄区域样式 */
+/* 英雄区域样式 */
 .hero-container {
+  position: relative;
+  width: 100%;
+  padding: 80px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 30px 0; /* 减少上下内边距 */
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
-  border-radius: 0 0 30px 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 24px;
-  flex-shrink: 0; /* 防止压缩 */
+  overflow: hidden;
+  background-color: var(--bg-light);
+}
+
+.hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(37, 100, 235, 0.05), rgba(6, 182, 212, 0.08));
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-backdrop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(37, 100, 235, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+  z-index: -1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  width: 100%;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .title-content {
@@ -292,97 +346,139 @@ const router = useRouter()
 }
 
 .title-icon {
-  width: 54px;
-  height: 54px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(33, 150, 243, 0.3));
-  animation: float 6s ease-in-out infinite;
+  height: 60px;
+  width: auto;
+  margin-right: 12px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  animation: pulse 2s infinite;
 }
 
 .artistic-title {
-  font-size: 54px;
-  font-family: "华文行楷", "楷体", cursive;
-  background: linear-gradient(45deg, #2196F3, #673AB7);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 2px 2px 8px rgba(33, 150, 243, 0.3);
-  letter-spacing: 5px;
-  margin: 0 0 0 16px;
-  padding: 0;
-  animation: glow 6s ease-in-out infinite;
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 1px;
+  background-size: 200% auto;
+  animation: gradientShift 3s linear infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .subtitle {
   font-size: 18px;
-  font-weight: 300;
-  color: #5e6c84;
-  font-family: "Microsoft YaHei", sans-serif;
-  letter-spacing: 3px;
-  margin-bottom: 32px;
-  animation: fadeIn 1.5s ease-out;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  font-weight: 400;
 }
 
-/* 搜索框容器样式 */
+/* 搜索栏样式 */
 .search-bar-container {
+  width: 100%;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 auto 40px;
+  border-radius: var(--border-radius-full);
+  padding: 6px;
+  box-shadow: var(--shadow-md);
+}
+
+.search-input {
+  border-radius: var(--border-radius-full);
+  overflow: hidden;
+}
+
+.search-input :deep(.ant-input) {
+  height: 48px;
+  font-size: 16px;
+  padding-left: 20px;
+  border: none;
+  background: transparent;
+}
+
+.search-input :deep(.ant-input-search-button) {
+  height: 48px;
+  font-size: 16px;
+  border-radius: 0 var(--border-radius-full) var(--border-radius-full) 0 !important;
+  width: 110px;
+}
+
+.search-button {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* 统计数据展示 */
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 0 20px;
 }
 
-.search-bar-container :deep(.ant-input) {
-  height: 48px;
-  border-radius: 24px 0 0 24px;
-  padding-left: 20px;
-  font-size: 16px;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.search-bar-container :deep(.ant-input:focus) {
-  box-shadow: 0 3px 12px rgba(33, 150, 243, 0.2);
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
-.search-bar-container :deep(.ant-input-group-addon) {
-  background: transparent;
-  border: none;
-}
-
-.search-bar-container :deep(.ant-btn) {
-  height: 48px;
-  border-radius: 0 24px 24px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--border-color), transparent);
 }
 
 /* 内容区域样式 */
 .content-container {
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px 0; /* 移除所有底部内边距 */
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+  padding: 0 20px 40px;
 }
 
 /* 筛选栏样式 */
 .filter-container {
-  background-color: white;
-  border-radius: 12px;
+  margin-bottom: 30px;
+  border-radius: var(--border-radius-lg);
   padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  flex-shrink: 0; /* 防止压缩 */
+  box-shadow: var(--shadow-sm);
 }
 
-/* 分类标签页样式 */
-.category-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 16px;
+.category-tabs {
+  margin-bottom: 20px;
+}
+
+.category-tabs :deep(.ant-tabs-nav::before) {
+  border-bottom-color: var(--border-color);
 }
 
 .category-tabs :deep(.ant-tabs-tab) {
-  padding: 8px 16px;
+  padding: 10px 16px;
   font-size: 15px;
+  transition: all var(--transition-fast);
+}
+
+.category-tabs :deep(.ant-tabs-tab:hover) {
+  color: var(--primary-color);
 }
 
 .category-tabs :deep(.ant-tabs-tab-active) {
@@ -390,171 +486,188 @@ const router = useRouter()
 }
 
 .category-tabs :deep(.ant-tabs-ink-bar) {
+  background: var(--primary-gradient);
   height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #2196F3, #673AB7);
+  border-radius: 3px 3px 0 0;
 }
 
-/* 标签栏样式 */
 .tag-bar {
   display: flex;
-  align-items: flex-start;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .tag-label {
+  font-size: 15px;
   font-weight: 500;
-  margin-right: 12px;
-  color: #5e6c84;
-  margin-top: 4px;
+  color: var(--text-primary);
+  margin-right: 10px;
+  margin-bottom: 8px;
 }
 
 .custom-tag {
-  margin-right: 8px;
-  margin-bottom: 8px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  transition: all 0.3s;
+  margin: 0 8px 8px 0;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border-color);
 }
 
 .custom-tag:hover {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
-/* 图片区容器样式 */
+.custom-tag:deep(.ant-tag-checkable-checked) {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* 图片容器样式 */
 .pictures-container {
-  margin-bottom: 20px;
-  padding: 0;
-  flex: 1;
+  position: relative;
+  width: 100%;
+}
+
+/* 加载更多区域 */
+.load-more-container {
+  margin-top: 40px;
+  text-align: center;
+  padding: 20px 0;
+  position: relative;
+}
+
+.load-more-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(90deg, 
+      transparent, 
+      var(--border-color), 
+      transparent);
+}
+
+.loading-indicator {
   display: flex;
   flex-direction: column;
-  position: relative; /* 为内部绝对定位元素提供参考 */
-}
-
-/* 分页样式 */
-.pagination-container {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0;
-  margin: 0;
-  flex-shrink: 0; /* 防止压缩 */
-}
-
-/* 加载状态样式 */
-.load-more-container {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 20px 0;
-  width: 100%;
-  position: relative;
-  clear: both;
-  margin-top: 20px;
-}
-
-.loading-indicator, .no-more-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-  font-size: 14px;
-  padding: 15px 0;
+  gap: 8px;
 }
 
 .loading-text {
-  margin-left: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 8px;
 }
 
 .no-more-indicator {
-  padding: 10px 0;
-  color: #999;
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  background: rgba(240, 242, 245, 0.6);
+  border-radius: var(--border-radius-full);
 }
 
-/* 新增加载更多按钮样式 */
-.load-more-button-wrapper {
-  margin: 10px 0;
-  display: flex;
-  justify-content: center;
+.load-more-button {
+  padding: 0 28px;
+  height: 40px;
+  font-size: 15px;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal);
 }
 
-/* 动画效果 */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0);
-  }
-  50% {
-    transform: translateY(-12px) rotate(5deg);
-  }
+.load-more-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
-@keyframes glow {
-  0%, 100% {
-    text-shadow: 2px 2px 8px rgba(33, 150, 243, 0.3);
-  }
-  50% {
-    text-shadow: 2px 2px 16px rgba(33, 150, 243, 0.6);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 响应式适配 */
+/* 响应式调整 */
 @media (max-width: 768px) {
-  .artistic-title {
-    font-size: 42px;
+  .hero-container {
+    padding: 60px 16px 40px;
   }
   
-  .title-icon {
-    width: 42px;
-    height: 42px;
+  .artistic-title {
+    font-size: 38px;
   }
   
   .subtitle {
     font-size: 16px;
-    letter-spacing: 2px;
+    margin-bottom: 30px;
   }
   
-  .hero-container {
-    padding: 30px 0;
+  .hero-stats {
+    gap: 10px;
   }
   
-  .search-bar-container :deep(.ant-input),
-  .search-bar-container :deep(.ant-btn) {
-    height: 42px;
+  .stat-item {
+    padding: 0 10px;
+  }
+  
+  .stat-number {
+    font-size: 26px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  .content-container {
+    padding: 0 12px 40px;
+  }
+  
+  .filter-container {
+    padding: 15px;
+    margin-bottom: 20px;
   }
 }
 
-@media (max-width: 480px) {
-  .artistic-title {
-    font-size: 36px;
+@media (max-width: 576px) {
+  .hero-container {
+    padding: 40px 12px 30px;
   }
   
   .title-icon {
-    width: 36px;
-    height: 36px;
+    height: 40px;
   }
   
-  .hero-container {
-    padding: 24px 0;
+  .artistic-title {
+    font-size: 32px;
   }
   
-  .tag-bar {
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  
+  .search-input :deep(.ant-input) {
+    height: 42px;
+    font-size: 14px;
+  }
+  
+  .search-input :deep(.ant-input-search-button) {
+    height: 42px;
+    width: 90px;
+  }
+  
+  .hero-stats {
     flex-direction: column;
+    gap: 16px;
+  }
+  
+  .stat-divider {
+    display: none;
   }
   
   .tag-label {
-    margin-bottom: 8px;
+    margin-right: 0;
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 </style>
