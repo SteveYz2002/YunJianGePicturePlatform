@@ -2,6 +2,12 @@
 
 ## 项目概述
 云笺阁图片分享平台是一个基于云存储的图库平台，提供图片上传、管理、展示、下载等功能。
+<img width="1895" height="814" alt="image" src="https://github.com/user-attachments/assets/cc58902d-a991-409a-b6ea-975fb7888449" />
+<img width="1422" height="725" alt="image" src="https://github.com/user-attachments/assets/ab32d62c-4b7b-438e-969a-c69f8b88f122" />
+<img width="1865" height="811" alt="image" src="https://github.com/user-attachments/assets/cd5a17ae-7e6a-4056-a2d6-360f28024cca" />
+<img width="1877" height="816" alt="image" src="https://github.com/user-attachments/assets/4cc9c558-db49-450a-a74a-f034d00e11ed" />
+
+
 
 ## 技术栈
 
